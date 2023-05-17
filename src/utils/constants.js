@@ -36,6 +36,8 @@ const LOCAL_PATH = process.env.NODE_ENV !== 'production' ? '..' : `../${APP_BASE
 
 const SERVER_PATH = getServerPath();
 
+const PROJECT_PATH = getServerPath()+"/sei-strategy-api";
+
 const LOGIN_STATUS = {
   SUCCESS: 'success',
   MULTI_TENANT: 'multiTenant',
@@ -56,6 +58,7 @@ export default {
   APP_BASE,
   LOCAL_PATH,
   SERVER_PATH,
+  PROJECT_PATH,
   APP_MODULE_BTN_KEY,
   LOGIN_STATUS,
 };
