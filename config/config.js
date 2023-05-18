@@ -86,7 +86,7 @@ export default {
     javascriptEnabled: true,
   },
   manifest: {
-    basePath: '/',
+    basePath: '/',1
   },
   chainWebpack: webpackPlugin,
 };
