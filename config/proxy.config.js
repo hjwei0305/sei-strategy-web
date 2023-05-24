@@ -5,11 +5,11 @@ export default {
     secure: false,
     pathRewrite: { '^/mocker.api': '' },
   },
-  '/api-gateway/startegy-api': {
+  '/api-gateway/sei-strategy-api': {
     target: 'http://127.0.0.1:8080',
     changeOrigin: true,
     secure: false,
-    pathRewrite: { '^/api-gateway/startegy-api': '' },
+    pathRewrite: { '^/api-gateway/sei-strategy-api': '' },
   },
   '/api-gateway': {
     target: 'https://sei.donlim.com/api-gateway',

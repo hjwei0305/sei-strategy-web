@@ -6,8 +6,8 @@ import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 
 @withRouter
-@connect(({ testPage, loading }) => ({ testPage, loading }))
-class TestPage extends Component {
+@connect(({ strategyProjectVerify, loading }) => ({ strategyProjectVerify, loading }))
+class StrategyProjectVerify extends Component {
   state = {
     delId: null,
   };
@@ -32,7 +32,7 @@ class TestPage extends Component {
       case 'add':
       case 'edit':
         this.dispatchAction({
-          type: 'testPage/updateState',
+          type: 'strategyProjectVerify/updateState',
           payload: {
             modalVisible: true,
             editData: row,
@@ -46,7 +46,7 @@ class TestPage extends Component {
           },
           () => {
             this.dispatchAction({
-              type: 'testPage/del',
+              type: 'strategyProjectVerify/del',
               payload: {
                 id: row.id,
               },
@@ -70,12 +70,12 @@ class TestPage extends Component {
 
   handleSave = data => {
     this.dispatchAction({
-      type: 'testPage/save',
+      type: 'strategyProjectVerify/save',
       payload: data,
     }).then(res => {
       if (res.success) {
         this.dispatchAction({
-          type: 'testPage/updateState',
+          type: 'strategyProjectVerify/updateState',
           payload: {
             modalVisible: false,
           },
@@ -87,7 +87,7 @@ class TestPage extends Component {
 
   handleClose = () => {
     this.dispatchAction({
-      type: 'testPage/updateState',
+      type: 'strategyProjectVerify/updateState',
       payload: {
         modalVisible: false,
         editData: null,
@@ -98,7 +98,7 @@ class TestPage extends Component {
   renderDelBtn = row => {
     const { loading } = this.props;
     const { delId } = this.state;
-    if (loading.effects['testPage/del'] && delId === row.id) {
+    if (loading.effects['strategyProjectVerify/del'] && delId === row.id) {
       return <ExtIcon status="error" tooltip={{ title: '删除' }} type="loading" antd />;
     }
     return <ExtIcon status="error" tooltip={{ title: '删除' }} type="delete" antd />;
@@ -180,21 +180,21 @@ class TestPage extends Component {
   };
 
   getEditModalProps = () => {
-    const { loading, testPage } = this.props;
-    const { modalVisible, editData } = testPage;
+    const { loading, strategyProjectVerify } = this.props;
+    const { modalVisible, editData } = strategyProjectVerify;
 
     return {
       onSave: this.handleSave,
       editData,
       visible: modalVisible,
       onClose: this.handleClose,
-      saving: loading.effects['testPage/save'],
+      saving: loading.effects['strategyProjectVerify/save'],
     };
   };
 
   render() {
-    const { testPage } = this.props;
-    const { modalVisible } = testPage;
+    const { strategyProjectVerify } = this.props;
+    const { modalVisible } = strategyProjectVerify;
 
     return (
       <>
@@ -205,4 +205,4 @@ class TestPage extends Component {
   }
 }
 
-export default TestPage;
+export default StrategyProjectVerify;

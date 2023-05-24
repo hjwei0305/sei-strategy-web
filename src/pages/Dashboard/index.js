@@ -25,6 +25,42 @@ const menuData = [
       },
     ],
   },
+  {
+    id: '20',
+    name: '基础资料管理',
+    children: [
+      {
+        id: '201',
+        name: '项目类型配置',
+        path: '/strategy/StrategyProjectStyle',
+      },
+      {
+        id: '202',
+        name: '项目分级配置',
+        path: '/strategy/StrategyProjectLevel',
+      },
+      {
+        id: '203',
+        name: '所属模块配置',
+        path: '/strategy/StrategyBillModule',
+      },
+      {
+        id: '204',
+        name: '人员配置',
+        path: '/strategy/StrategyUser',
+      },
+      {
+        id: '206',
+        name: '验证问题配置',
+        path: '/strategy/StrategyProjectVerify',
+      },
+      {
+        id: '205',
+        name: '项目周期配置',
+        path: '/strategy/StrategyProjectScheme',
+      },
+    ],
+  },
 ];
 
 const getIcon = icon => {
