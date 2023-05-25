@@ -45,6 +45,17 @@ class FormModal extends PureComponent {
         onOk={this.handleSave}
       >
         <Form {...formItemLayout} layout="horizontal">
+          <FormItem label="级别">
+            {getFieldDecorator('level', {
+              initialValue: editData && editData.level,
+              rules: [
+                {
+                  required: true,
+                  message: '级别不能为空',
+                }
+              ],
+            })(<Input disabled={ saving} />)}
+          </FormItem>
           <FormItem label="代码">
             {getFieldDecorator('code', {
               initialValue: editData && editData.code,
@@ -53,20 +64,49 @@ class FormModal extends PureComponent {
                   required: true,
                   message: '代码不能为空',
                 },
-                {
-                  max: 10,
-                  message: '代码不能超过5个字符',
-                },
               ],
-            })(<Input disabled={!!editData || saving} />)}
+            })(<Input disabled={saving} />)}
           </FormItem>
-          <FormItem label="名称">
-            {getFieldDecorator('name', {
-              initialValue: editData && editData.name,
+          <FormItem label="实施范围">
+            {getFieldDecorator('scope', {
+              initialValue: editData && editData.scope,
               rules: [
                 {
                   required: true,
-                  message: '名称不能为空',
+                  message: '实施范围不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="产品线">
+            {getFieldDecorator('productLine', {
+              initialValue: editData && editData.productLine,
+              rules: [
+                {
+                  required: true,
+                  message: '产品线不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="重点关注项目">
+            {getFieldDecorator('importantProject', {
+              initialValue: editData && editData.importantProject,
+              rules: [
+                {
+                  required: true,
+                  message: '公司重点关注项目不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="运行阶段">
+            {getFieldDecorator('stage', {
+              initialValue: editData && editData.stage,
+              rules: [
+                {
+                  required: true,
+                  message: '运行阶段不能为空',
                 },
               ],
             })(<Input disabled={saving} />)}

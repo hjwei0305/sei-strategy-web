@@ -32,6 +32,43 @@ class StrategyProjectStyle extends Component {
     });
   };
 
+  getTableFilters = () => {
+    const filters = [];
+    if (this.state.projectStyleFilter) {
+      filters.push({
+        fieldName: 'projectStyle',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.projectStyleFilter,
+      });
+    }
+    if (this.state.codeFilter) {
+      filters.push({
+        fieldName: 'code',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.codeFilter,
+      });
+    }
+    return filters;
+  };
+
+  findByPage = () => {
+    const { dispatch } = this.props;
+    const filters = this.getTableFilters();
+    dispatch({
+      type: 'strategyProjectStyle/findByPage',
+      payload: {
+        filters
+      },
+    }).then(res => {
+      const { rows } = res.data
+      this.setState({
+        dataList: rows,
+        });
+    });
+  };
+
   refresh = () => {
     debugger;
     if (this.tableRef) {
@@ -96,46 +133,8 @@ class StrategyProjectStyle extends Component {
         type: type
       }
     });
-  }
+  };
   
-
-  getTableFilters = () => {
-    const filters = [];
-    if (this.state.projectStyleFilter) {
-      filters.push({
-        fieldName: 'projectStyle',
-        operator: 'LK',
-        fieldType: 'String',
-        value:this.state.projectStyleFilter,
-      });
-    }
-    if (this.state.codeFilter) {
-      filters.push({
-        fieldName: 'code',
-        operator: 'LK',
-        fieldType: 'String',
-        value:this.state.codeFilter,
-      });
-    }
-    return filters;
-  };
-
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyProjectStyle/findByPage',
-      payload: {
-        filters
-      },
-    }).then(res => {
-      const { rows } = res.data
-      this.setState({
-        dataList: rows,
-        });
-    });
-  };
-
   handlerExport = () => {
     const filters = this.getTableFilters();
     request.post(`${PROJECT_PATH}/strategyProjectStyle/export`, {filters}).then(res => {
@@ -275,7 +274,7 @@ class StrategyProjectStyle extends Component {
             style={{ width: 120 }}
             onChange={e => this.setState({
               projectStyleFilter: e.target.value
-          })}
+            })}
             allowClear
           />
           代码：{''}

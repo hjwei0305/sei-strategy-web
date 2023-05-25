@@ -57,7 +57,6 @@ export default modelExtend(model, {
     },
     *downloadTemplate({ payload }, { call }) {
       console.log(payload.type)
-      debugger;
       const ds = yield call(downloadTemplate);
       if (ds.success) {
         downFile(ds.data,'项目类型导入模版.xlsx');
@@ -67,12 +66,10 @@ export default modelExtend(model, {
       const result = yield call(uploadStrategyProjectStyle, payload);
       const { success, message: msg } = result || {};
       message.destroy();
-      if (success) {
-      //  message.success(msg);
-      } else {
+      if (!success) {
         message.error(msg);
       }
       return result;
-    },
+    }
   },
 });

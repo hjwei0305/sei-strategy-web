@@ -6,7 +6,8 @@
  */
 import { message } from 'antd';
 import { utils } from 'suid';
-import { del, save } from './service';
+import { downFile } from '@/utils';
+import { del, save, findByPage, downloadTemplate,uploadStrategyProjectLevel } from './service';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -45,5 +46,30 @@ export default modelExtend(model, {
 
       return result;
     },
+    *findByPage({ payload }, { call }) {
+      const result = yield call(findByPage, payload);
+      const { success, message: msg } = result || {};
+      message.destroy();
+      if (!success) {
+        message.error(msg);
+      }
+      return result;
+    },
+    *downloadTemplate({ payload }, { call }) {
+      console.log(payload.type)
+      const ds = yield call(downloadTemplate);
+      if (ds.success) {
+        downFile(ds.data,'项目级别导入模版.xlsx');
+      }
+    },
+    *uploadStrategyProjectLevel({ payload }, { call }) {
+      const result = yield call(uploadStrategyProjectLevel, payload);
+      const { success, message: msg } = result || {};
+      message.destroy();
+      if (!success) {
+        message.error(msg);
+      }
+      return result;
+    }
   },
 });
