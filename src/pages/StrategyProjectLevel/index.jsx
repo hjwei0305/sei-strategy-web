@@ -130,7 +130,7 @@ class StrategyProjectLevel extends Component {
                   {
                     delId: null,
                   },
-                  () => this.refresh(),
+                  () => this.findByPage(),
                 );
               }
             });
@@ -394,12 +394,17 @@ class StrategyProjectLevel extends Component {
         </Space>
       ),
     };
+    const filter = this.getTableFilters();
     return {
       columns,
       bordered: false,
       toolBar: toolBarProps,
       remotePaging: true,
+      showSearch: false,
       dataSource: this.state.dataList,
+      cascadeParams: {
+        filter,
+      }
     };
   };
 

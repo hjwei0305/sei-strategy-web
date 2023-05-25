@@ -60,9 +60,9 @@ class FormModal extends PureComponent {
               ],
             })(<Input disabled={!!editData || saving} />)}
           </FormItem>
-          <FormItem label="名称">
-            {getFieldDecorator('name', {
-              initialValue: editData && editData.name,
+          <FormItem label="模块">
+            {getFieldDecorator('module', {
+              initialValue: editData && editData.module,
               rules: [
                 {
                   required: true,

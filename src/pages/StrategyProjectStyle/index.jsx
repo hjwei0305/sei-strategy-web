@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Input, Modal, message} from 'antd';
+import { Button, Input, message,Popconfirm} from 'antd';
 import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
 import EditModal from './EditModal';
 import { exportXlsx,constants } from '@/utils';
 import { request } from 'suid/lib/utils';
 
 const { PROJECT_PATH } = constants;
-const { confirm } = Modal;
+
 @withRouter
 @connect(({ strategyProjectStyle, loading }) => ({ strategyProjectStyle, loading }))
 class StrategyProjectStyle extends Component {
@@ -69,13 +69,6 @@ class StrategyProjectStyle extends Component {
     });
   };
 
-  refresh = () => {
-    debugger;
-    if (this.tableRef) {
-      this.tableRef.remoteDataRefresh();
-    }
-  };
-
   handleEvent = (type, row) => {
     switch (type) {
       case 'add':
@@ -89,37 +82,28 @@ class StrategyProjectStyle extends Component {
         });
         break;
       case 'del':
-        confirm({
-          title: '确定要删除吗？',
-          content: '删除后不可恢复',
-          okText: '确定',
-          okType: 'danger',
-          cancelText: '取消',
-          onOk: () => {
-            this.setState(
-              {
-                delId: row.id,
-              },
-              () => {
-                this.dispatchAction({
-                  type: 'strategyProjectStyle/del',
-                  payload: {
-                    id: row.id,
-                  },
-                }).then(res => {
-                  if (res.success) {
-                    this.setState(
-                      {
-                        delId: null,
-                      },
-                      () => this.findByPage(),
-                    );
-                  }
-                });
-              },
-            );
+        this.setState(
+          {
+            delId: row.id,
           },
-        })
+          () => {
+            this.dispatchAction({
+              type: 'strategyProjectStyle/del',
+              payload: {
+                id: row.id,
+              },
+            }).then(res => {
+              if (res.success) {
+                this.setState(
+                  {
+                    delId: null,
+                  },
+                  () => this.findByPage(),
+                );
+              }
+            });
+          },
+        );
         break;
       default:
         break;
@@ -162,7 +146,7 @@ class StrategyProjectStyle extends Component {
       payload: data,
     }).then(res => {
       if (res.success) {
-        message.success('导入成功！');
+        
         this.findByPage();
       }
     });
@@ -228,16 +212,14 @@ class StrategyProjectStyle extends Component {
               tooltip={{ title: '编辑' }}
               antd
             />
-            <ExtIcon
+            <Popconfirm
               key="del"
-              type='delete'
-              status="error"
-              tooltip={{ title: '点击删除' }}
-              onClick={() => this.handleEvent('del', record)}
+              placement="topLeft"
               title="确定要删除吗？"
-              antd
+              onConfirm={() => this.handleEvent('del', record)}
             >
-            </ExtIcon>
+              {this.renderDelBtn(record)}
+            </Popconfirm>
           </Space>
         ),
       },
@@ -350,6 +332,15 @@ class StrategyProjectStyle extends Component {
       },
     });
     this.findByPage();
+  };
+
+  renderDelBtn = row => {
+    const { loading } = this.props;
+    const { delId } = this.state;
+    if (loading.effects['strategyProjectStyle/del'] && delId === row.id) {
+      return <ExtIcon status="error" tooltip={{ title: '删除' }} type="loading" antd />;
+    }
+    return <ExtIcon status="error" tooltip={{ title: '删除' }} type="delete" antd />;
   };
 
   getEditModalProps = () => {

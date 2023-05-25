@@ -5,22 +5,43 @@
  * @Last Modified time: 2020-04-23 09:48:33
  */
 import { utils } from 'suid';
+import { constants } from '@/utils';
 
 const { request } = utils;
-
-const MockServerPath =
-  '/mock/5e02d29836608e42d52b1d81/template-service';
-const contextPath = '/simple-master';
+const { PROJECT_PATH,LOCAL_PATH } = constants;
+const contextPath = '/strategyBillModule';
 
 /** 保存 */
 export async function save(data) {
-  const url = `${MockServerPath}${contextPath}/save`;
+  const url = `${PROJECT_PATH}${contextPath}/save`;
 
   return request.post(url, data);
 }
 
 /** 删除 */
 export async function del(params) {
-  const url = `${MockServerPath}${contextPath}/delete/${params.id}`;
+  const url = `${PROJECT_PATH}${contextPath}/delete/${params.id}`;
   return request.delete(url);
 }
+
+/** 查询 */
+export async function findByPage(params) {
+  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
+  return request.post(url, params);
+}
+
+/** 下载模版 */
+export async function downloadTemplate() {
+  const url = `${LOCAL_PATH}/templates/模块导入模版.xlsx`;
+  return request({
+    url,
+    method: 'get',
+    responseType: 'blob', });
+}
+
+/** 导入 */
+export async function uploadStrategyBillModule(data) {
+  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyBillModule`;
+  return request.post(url, data);
+}
+

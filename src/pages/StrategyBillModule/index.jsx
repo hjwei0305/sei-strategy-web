@@ -1,16 +1,28 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm } from 'antd';
-import { ExtTable, ExtIcon, Space } from 'suid';
+import { Button, Popconfirm, Input,message } from 'antd';
+import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
 import EditModal from './EditModal';
+import { request } from 'suid/lib/utils';
+import { exportXlsx,constants } from '@/utils';
+
+const { PROJECT_PATH } = constants;
 
 @withRouter
 @connect(({ strategyBillModule, loading }) => ({ strategyBillModule, loading }))
 class StrategyBillModule extends Component {
   state = {
     delId: null,
+    dataList: [],
+    moduleFilter: null,
+    codeFilter: null,
   };
+
+  constructor(prop) {
+    super(prop);
+    this.findByPage();
+  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -21,10 +33,44 @@ class StrategyBillModule extends Component {
     });
   };
 
-  refresh = () => {
-    if (this.tableRef) {
-      this.tableRef.remoteDataRefresh();
+  getTableFilters = () => {
+    const filters = [];
+    if (this.state.moduleFilter) {
+      filters.push({
+        fieldName: 'module',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.moduleFilter,
+      });
     }
+    if (this.state.codeFilter) {
+      filters.push({
+        fieldName: 'code',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.codeFilter,
+      });
+    }
+    return filters;
+  };
+
+  findByPage = () => {
+    const { dispatch } = this.props;
+    const filters = this.getTableFilters();
+    dispatch({
+      type: 'strategyBillModule/findByPage',
+      payload: {
+        filters,
+      },
+    }).then(res => {
+      if (res.success) {
+        const { rows } = res.data;
+        this.setState({
+          dataList: rows,
+        });
+
+      }
+    });
   };
 
   handleEvent = (type, row) => {
@@ -56,7 +102,7 @@ class StrategyBillModule extends Component {
                   {
                     delId: null,
                   },
-                  () => this.refresh(),
+                  () => this.findByPage(),
                 );
               }
             });
@@ -69,7 +115,7 @@ class StrategyBillModule extends Component {
   };
 
   handleSave = data => {
-    this.dispatchAction({
+      this.dispatchAction({
       type: 'strategyBillModule/save',
       payload: data,
     }).then(res => {
@@ -80,7 +126,7 @@ class StrategyBillModule extends Component {
             modalVisible: false,
           },
         });
-        this.refresh();
+        this.findByPage();
       }
     });
   };
@@ -104,12 +150,91 @@ class StrategyBillModule extends Component {
     return <ExtIcon status="error" tooltip={{ title: '删除' }} type="delete" antd />;
   };
 
+  handlerExport = () => {
+    const filters = this.getTableFilters();
+    request.post(`${PROJECT_PATH}/strategyBillModule/export`, {filters}).then(res => {
+      if (res.success && res.data.length > 0) {
+        exportXlsx(
+          '策略模块',
+          [
+            'id',
+            '代码',
+            '模块',
+            '创建人',
+            '创建时间',
+          ],
+          res.data);
+      }else{
+        message.error(res.message);
+      }
+    });
+  };
+
+  downloadTemplate = (type) => {
+    this.dispatchAction({
+      type: 'strategyBillModule/downloadTemplate',
+      payload: {
+        type: type,
+      },
+    });
+  }
+
+  uploadStrategyBillModule = (data) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'strategyBillModule/uploadStrategyBillModule',
+      payload:  data,
+    }).then(res => {
+      if (res.success) {
+        this.findByPage();
+      }
+    }
+    );
+  }
+
+  validateItem = (data) => {
+    return data.map(item => {
+      if (!item.module) {
+        debugger;
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '模块不能为空',
+        }
+      }else if (!item.code) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '代码不能为空',
+        }
+      }
+      return {
+        ...item,
+        validate: true,
+        status: '验证通过',
+        statusCode: 'success',
+        message: '验证通过',
+      };
+    });
+  }
+
   getExtableProps = () => {
     const columns = [
       {
+        title: '序号',
+        dataIndex: 'index',
+        width: 80,
+        align: 'center',
+        render: (_, __, index) => index + 1,
+      },
+      {
         title: '操作',
         key: 'operation',
-        width: 100,
+        width: 300,
         align: 'center',
         dataIndex: 'id',
         className: 'action',
@@ -139,12 +264,24 @@ class StrategyBillModule extends Component {
       {
         title: '代码',
         dataIndex: 'code',
-        width: 120,
+        width: 220,
         required: true,
       },
       {
-        title: '名称',
-        dataIndex: 'name',
+        title: '模块',
+        dataIndex: 'module',
+        width: 220,
+        required: true,
+      },
+      {
+        title: '提交人',
+        dataIndex: 'creatorName',
+        width: 220,
+        required: true,
+      },
+      {
+        title: '提交时间',
+        dataIndex: 'createdDate',
         width: 220,
         required: true,
       },
@@ -152,6 +289,24 @@ class StrategyBillModule extends Component {
     const toolBarProps = {
       left: (
         <Space>
+          所属模块：{''}
+          <Input
+            style={{ width: 200 }}
+            placeholder="请输入"
+            onChange={e => {
+              this.setState({
+                moduleFilter: e.target.value,
+              });
+            }}
+          />
+          <Button
+            type="primary"
+            onClick={() => {
+              this.findByPage();
+            }}
+          >
+            查询
+          </Button>
           <Button
             key="add"
             type="primary"
@@ -162,20 +317,29 @@ class StrategyBillModule extends Component {
           >
             新建
           </Button>
-          <Button onClick={this.refresh}>刷新</Button>
+          <Button onClick={this.handlerExport}>导出</Button>
+          <Button onClick={() => this.downloadTemplate('可用的入参')}>模板</Button>
+          <DataImport
+            tableProps={{ columns, showSearch: false }}
+            validateFunc={this.validateItem}
+            validatedAll={true}
+            importFunc={this.uploadStrategyBillModule}          
+          />
         </Space>
       ),
     };
+
+    const filter = this.getTableFilters();
     return {
       columns,
-      bordered: false,
+      bordered: true,
       toolBar: toolBarProps,
-      remotePaging: true,
-      store: {
-        type: 'POST',
-        url:
-          '/mock/5e02d29836608e42d52b1d81/template-service/simple-master/findByPage',
-      },
+      remotePaging: false,
+      showSearch: false,
+      dataSource: this.state.dataList,
+      cascadeParams: {
+        filter,
+      }
     };
   };
 
