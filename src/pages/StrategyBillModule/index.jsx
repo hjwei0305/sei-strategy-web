@@ -298,6 +298,7 @@ class StrategyBillModule extends Component {
                 moduleFilter: e.target.value,
               });
             }}
+            allowClear
           />
           <Button
             type="primary"
