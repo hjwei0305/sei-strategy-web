@@ -91,14 +91,7 @@ class StrategyProjectLevel extends Component {
       this.setState({
         dataList: rows,
       });
-    }
-    );
-  };
-
-  refresh = () => {
-    if (this.tableRef) {
-      this.tableRef.remoteDataRefresh();
-    }
+    });
   };
 
   handleEvent = (type, row) => {
@@ -399,7 +392,6 @@ class StrategyProjectLevel extends Component {
       columns,
       bordered: false,
       toolBar: toolBarProps,
-      remotePaging: true,
       showSearch: false,
       dataSource: this.state.dataList,
       cascadeParams: {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm } from 'antd';
+import { Button, Input, Popconfirm } from 'antd';
 import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 
@@ -10,7 +10,18 @@ import EditModal from './EditModal';
 class StrategyUser extends Component {
   state = {
     delId: null,
+    dataList: [],
+    moduleFilter: null,
+    styleFilter: null,
+    userNameFilter: null,
+    styleList:[],
   };
+
+  constructor(prop) {
+    super(prop);
+    this.findByPage();
+    this.componentdidmount();
+  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -21,10 +32,63 @@ class StrategyUser extends Component {
     });
   };
 
-  refresh = () => {
-    if (this.tableRef) {
-      this.tableRef.remoteDataRefresh();
+  componentdidmount = ()  =>{
+    this.dispatchAction({
+      type: 'strategyUser/getProOpt',
+      payload:{}
+    }).then(res => {
+      const { data } = res;
+      this.setState({
+        styleList: data,
+      });
+    })
+  }
+
+
+
+  getTableFilters = () => {
+    const filters = [];
+    if (this.state.moduleFilter) {
+      filters.push({
+        fieldName: 'module',
+        operator: 'LK',
+        fieldType: 'String',
+        value: this.state.moduleFilter,
+      });
     }
+    if (this.state.styleFilter) {
+      filters.push({
+        fieldName: 'style',
+        operator: 'LK',
+        fieldType: 'String',
+        value: this.state.styleFilter,
+      });
+    }
+    if (this.state.userNameFilter) {
+      filters.push({
+        fieldName: 'userName',
+        operator: 'LK',
+        fieldType: 'String',
+        value: this.state.userNameFilter,
+      });
+    }
+    return filters;
+  };
+
+  findByPage = () => {
+    const { dispatch } = this.props;
+    const filters = this.getTableFilters();
+    dispatch({
+      type: 'strategyUser/findByPage',
+      payload: {
+        filters,
+      },
+    }).then(res => {
+      const { rows } = res.data;
+      this.setState({
+        dataList: rows,
+      });
+    });
   };
 
   handleEvent = (type, row) => {
@@ -56,7 +120,7 @@ class StrategyUser extends Component {
                   {
                     delId: null,
                   },
-                  () => this.refresh(),
+                  () => this.findByPage(),
                 );
               }
             });
@@ -80,7 +144,7 @@ class StrategyUser extends Component {
             modalVisible: false,
           },
         });
-        this.refresh();
+        this.findByPage();
       }
     });
   };
@@ -106,6 +170,13 @@ class StrategyUser extends Component {
 
   getExtableProps = () => {
     const columns = [
+      {
+        title: '序号',
+        dataIndex: 'index',
+        width: 80,
+        align: 'center',
+        render: (_, __, index) => index + 1,
+      },
       {
         title: '操作',
         key: 'operation',
@@ -137,21 +208,100 @@ class StrategyUser extends Component {
         ),
       },
       {
-        title: '代码',
-        dataIndex: 'code',
-        width: 120,
+        title: '模块',
+        dataIndex: 'module',
+        width: 150,
         required: true,
       },
       {
-        title: '名称',
-        dataIndex: 'name',
-        width: 220,
+        title: '人员类别',
+        dataIndex: 'style',
+        width: 150,
+        required: true,
+        render:(_, record) => {
+          for(let i of this.state.styleList){
+            if(i.dataValue === record.style){
+              return i.dataName
+            }
+        }}
+      },
+      {
+        title: '工号',
+        dataIndex: 'userCode',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '姓名',
+        dataIndex: 'userName',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '部门',
+        dataIndex: 'department',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '人事状态',
+        dataIndex: 'userStatue',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '创建人',
+        dataIndex: 'creatorName',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createdDate',
+        width: 150,
         required: true,
       },
     ];
     const toolBarProps = {
       left: (
         <Space>
+          所属模块：
+          <Input
+            style={{ width: 150 }}
+            placeholder="请输入"
+            value={this.state.moduleFilter}
+            onChange={e => {
+              this.setState({
+                moduleFilter: e.target.value,
+              });
+            }}
+            allowClear
+          />
+          人员类别：
+          <Input
+            style={{ width: 150 }}
+            placeholder="请输入"
+            value={this.state.styleFilter}
+            onChange={e => {
+              this.setState({
+                styleFilter: e.target.value,
+              });
+            }}
+            allowClear
+          />
+          姓名：
+          <Input
+            style={{ width: 150 }}
+            placeholder="请输入"
+            value={this.state.userNameFilter}
+            onChange={e => {
+              this.setState({
+                userNameFilter: e.target.value,
+              });
+            }}
+            allowClear
+          />
+          <Button type="primary" onClick={this.findByPage}>  查询  </Button>
           <Button
             key="add"
             type="primary"
@@ -162,20 +312,18 @@ class StrategyUser extends Component {
           >
             新建
           </Button>
-          <Button onClick={this.refresh}>刷新</Button>
         </Space>
       ),
     };
+    const filter = this.getTableFilters(); // 过滤条件
     return {
       columns,
-      bordered: false,
+      bordered: true,
       toolBar: toolBarProps,
-      remotePaging: true,
-      store: {
-        type: 'POST',
-        url:
-          '/mock/5e02d29836608e42d52b1d81/template-service/simple-master/findByPage',
-      },
+      dataSource: this.state.dataList,
+      cascadeParams: {
+        filter,
+      }
     };
   };
 

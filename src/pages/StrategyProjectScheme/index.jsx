@@ -10,7 +10,13 @@ import EditModal from './EditModal';
 class StrategyProjectScheme extends Component {
   state = {
     delId: null,
+    datalist: [],
   };
+
+  constructor(prop) {
+    super(prop);
+    this.findByPage();
+  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -21,11 +27,6 @@ class StrategyProjectScheme extends Component {
     });
   };
 
-  refresh = () => {
-    if (this.tableRef) {
-      this.tableRef.remoteDataRefresh();
-    }
-  };
 
   handleEvent = (type, row) => {
     switch (type) {
@@ -104,12 +105,66 @@ class StrategyProjectScheme extends Component {
     return <ExtIcon status="error" tooltip={{ title: '删除' }} type="delete" antd />;
   };
 
+
+  getTableFilters = () => {
+    const filters = [];
+    if (this.state.levelFilter) {
+      filters.push({
+        fieldName: 'level',
+        operator: 'LK',
+        fieldType: 'String',
+        value: this.state.levelFilter,
+      });
+    }
+    if (this.state.creatorNameFilter) {
+      filters.push({
+        fieldName: 'creatorName',
+        operator: 'LK',
+        fieldType: 'String',
+        value: this.state.creatorNameFilter,
+      });
+    }
+    if (this.state.createdDateFilter) {
+      filters.push({
+        fieldName: 'createdDate',
+        operator: 'EQ',
+        fieldType: 'Date',
+        value: this.state.createdDateFilter,
+      });
+    }
+
+    return filters;
+  };
+
+  findByPage = () => {
+    const { dispatch } = this.props;
+    const {filters} = this.getTableFilters();
+    dispatch({
+      type: 'strategyProjectScheme/findByPage',
+      payload: {
+        filters,
+      },
+    }).then(res => {
+      const rows = res.data.rows;
+      this.setState({
+        datalist: rows,
+      });
+    });
+  };
+
   getExtableProps = () => {
     const columns = [
       {
+        title: '序号',
+        dataIndex: 'index',
+        width: 80,
+        align: 'center',
+        render: (_, __, index) => index + 1,
+      },
+      {
         title: '操作',
         key: 'operation',
-        width: 100,
+        width: 150,
         align: 'center',
         dataIndex: 'id',
         className: 'action',
@@ -137,15 +192,51 @@ class StrategyProjectScheme extends Component {
         ),
       },
       {
-        title: '代码',
-        dataIndex: 'code',
-        width: 120,
+        title: '模块',
+        dataIndex: 'module',
+        width: 150,
         required: true,
       },
       {
-        title: '名称',
-        dataIndex: 'name',
-        width: 220,
+        title: '人员类别',
+        dataIndex: 'style',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '工号',
+        dataIndex: 'userCode',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '姓名',
+        dataIndex: 'userName',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '部门',
+        dataIndex: 'department',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '人事状态',
+        dataIndex: 'status',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '创建人',
+        dataIndex: 'createUser',
+        width: 150,
+        required: true,
+      },
+      {
+        title: '创建时间',
+        dataIndex: 'createTime',
+        width: 150,
         required: true,
       },
     ];
@@ -166,16 +257,15 @@ class StrategyProjectScheme extends Component {
         </Space>
       ),
     };
+    const filter = this.getTableFilters();
     return {
       columns,
-      bordered: false,
+      bordered: true,
       toolBar: toolBarProps,
-      remotePaging: true,
-      store: {
-        type: 'POST',
-        url:
-          '/mock/5e02d29836608e42d52b1d81/template-service/simple-master/findByPage',
-      },
+      dataSource: this.state.datalist,
+      cascadeParams: {
+        filter,
+      }
     };
   };
 

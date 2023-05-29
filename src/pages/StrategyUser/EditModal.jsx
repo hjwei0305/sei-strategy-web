@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Input } from 'antd';
-import { ExtModal } from 'suid';
+import { ComboList, ExtModal } from 'suid';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -45,28 +45,89 @@ class FormModal extends PureComponent {
         onOk={this.handleSave}
       >
         <Form {...formItemLayout} layout="horizontal">
-          <FormItem label="代码">
-            {getFieldDecorator('code', {
-              initialValue: editData && editData.code,
+          <FormItem label="模块">
+            {getFieldDecorator('module', {
+              initialValue: editData && editData.module,
               rules: [
                 {
                   required: true,
-                  message: '代码不能为空',
+                  message: '模块不能为空',
                 },
                 {
                   max: 10,
                   message: '代码不能超过5个字符',
                 },
               ],
-            })(<Input disabled={!!editData || saving} />)}
+            })(<Input disabled={saving} />)}
           </FormItem>
-          <FormItem label="名称">
-            {getFieldDecorator('name', {
-              initialValue: editData && editData.name,
+          <ComboList 
+            style={{ width: '300px',marginLeft:'120px' }}
+            showSearch={false}
+            pagination={false}
+            url="/api/strategyUser/getModuleList"
+            valueField="module"
+            displayField="module"
+            name="module"
+            value={editData && editData.module}
+            rules={[
+              {
+                required: true,
+                message: '模块不能为空',
+              },
+            ]}
+            disabled={saving}
+          />
+          <FormItem label="人员类别">
+            {getFieldDecorator('style', {
+              initialValue: editData && editData.style,
               rules: [
                 {
                   required: true,
-                  message: '名称不能为空',
+                  message: '人员类别不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="工  号">
+            {getFieldDecorator('userCode', {
+              initialValue: editData && editData.userCode,
+              rules: [
+                {
+                  required: true,
+                  message: '工号不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="姓  名">
+            {getFieldDecorator('userName', {
+              initialValue: editData && editData.userName,
+              rules: [
+                {
+                  required: true,
+                  message: '姓名不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="部  门">
+            {getFieldDecorator('department', {
+              initialValue: editData && editData.department,
+              rules: [
+                {
+                  required: true,
+                  message: '部门不能为空',
+                },
+              ],
+            })(<Input disabled={saving} />)}
+          </FormItem>
+          <FormItem label="人事状态">
+            {getFieldDecorator('userStatue', {
+              initialValue: editData && editData.userStatue,
+              rules: [
+                {
+                  required: true,
+                  message: '人事状态不能为空',
                 },
               ],
             })(<Input disabled={saving} />)}

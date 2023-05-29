@@ -24,3 +24,9 @@ export async function del(params) {
   const url = `${MockServerPath}${contextPath}/delete/${params.id}`;
   return request.delete(url);
 }
+
+/** 分页查询 */
+export async function findByPage(params) {
+  const url = `${MockServerPath}${contextPath}/findByPage`;
+  return request.post(url, params);
+}
