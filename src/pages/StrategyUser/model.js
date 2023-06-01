@@ -6,7 +6,8 @@
  */
 import { message } from 'antd';
 import { utils } from 'suid';
-import { del, save, findByPage, getProOpt } from './service';
+import { del, save, findByPage, getProOpt, downloadTemplate, uploadStrategyUser } from './service';
+import { downFile } from '@/utils';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -56,6 +57,22 @@ export default modelExtend(model, {
     },
     *getProOpt({ payload }, { call }) {
       const result = yield call(getProOpt, payload);
+      const { success, message: msg } = result || {};
+      message.destroy();
+      if (!success) {
+        message.error(msg);
+      }
+      return result;
+    },
+    *downloadTemplate({ payload }, { call }) {
+      console.log(payload.type)
+      const ds = yield call(downloadTemplate);
+      if (ds.success) {
+        downFile(ds.data,'策略用户导入模版.xlsx');
+      }
+    },
+    *uploadStrategyUser({ payload }, { call }) {
+      const result = yield call(uploadStrategyUser, payload);
       const { success, message: msg } = result || {};
       message.destroy();
       if (!success) {

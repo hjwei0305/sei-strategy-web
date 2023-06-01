@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Input, Popconfirm } from 'antd';
-import { ExtTable, ExtIcon, Space } from 'suid';
+import { Button, Input, Popconfirm,message } from 'antd';
+import { ExtTable, ExtIcon, Space, DataImport, ComboList } from 'suid';
 import EditModal from './EditModal';
+import { request } from 'suid/lib/utils';
+import { exportXlsx, constants } from '@/utils';
+const { PROJECT_PATH } = constants;
 
 @withRouter
 @connect(({ strategyUser, loading }) => ({ strategyUser, loading }))
@@ -15,12 +18,14 @@ class StrategyUser extends Component {
     styleFilter: null,
     userNameFilter: null,
     styleList:[],
+    moduleList:[],
   };
 
   constructor(prop) {
     super(prop);
     this.findByPage();
     this.componentdidmount();
+    this.initModuleList();
   }
 
   dispatchAction = ({ type, payload }) => {
@@ -43,7 +48,14 @@ class StrategyUser extends Component {
       });
     })
   }
-
+  initModuleList = () => {
+    request.post(`${PROJECT_PATH}/strategyBillModule/export`, {}).then(res => {
+      const { data } = res;
+      this.setState({
+        moduleList: data,
+      });
+    });
+  };
 
 
   getTableFilters = () => {
@@ -91,6 +103,42 @@ class StrategyUser extends Component {
     });
   };
 
+  validateItem = data => {
+    return data.map(item => {
+      if (!item.style) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '人员类别不能为空',
+        }
+      }
+      return {
+        ...item,
+        validate: true,
+        status: '验证通过',
+        statusCode: 'success',
+        message: '验证通过',
+      };
+    });
+  };
+
+  uploadStrategyUser = data => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'strategyUser/uploadStrategyUser',
+      payload: data,
+    }).then(res => {
+      debugger;
+      if (res.success) {
+        message.success('导入成功！');
+        this.findByPage();
+      }
+    });
+  };
+
+
   handleEvent = (type, row) => {
     switch (type) {
       case 'add':
@@ -127,9 +175,43 @@ class StrategyUser extends Component {
           },
         );
         break;
+      case 'export':
+        const filters = this.getTableFilters();
+        request.post(`${PROJECT_PATH}/strategyUser/export`, {filters}).then(res => {
+          if (res.success && res.data.length > 0) {
+            exportXlsx(
+              '策略用户',
+              [
+                'id',
+                '模块code',
+                '模块',
+                '人员类别',
+                '员工id',
+                '工号',
+                '姓名',
+                '部门',
+                '人事状态',
+                '创建人',
+                '创建时间',
+              ],
+              res.data);
+          }else{
+            message.error(res.message);
+          }
+        });
+        break;
       default:
         break;
     }
+  };
+
+  downloadTemplate = (type) => {
+    this.dispatchAction({
+      type: 'strategyUser/downloadTemplate',
+      payload: {
+        type: type
+      }
+    });
   };
 
   handleSave = data => {
@@ -263,6 +345,7 @@ class StrategyUser extends Component {
       },
     ];
     const toolBarProps = {
+      layout: {leftSpan: 18, rightSpan: 6},
       left: (
         <Space>
           所属模块：
@@ -278,14 +361,16 @@ class StrategyUser extends Component {
             allowClear
           />
           人员类别：
-          <Input
+          <ComboList
             style={{ width: 150 }}
-            placeholder="请输入"
-            value={this.state.styleFilter}
-            onChange={e => {
-              this.setState({
-                styleFilter: e.target.value,
-              });
+            placeholder="请选择"
+            pagination={false}
+            showSearch={false}
+            dataSource={this.state.styleList}
+            afterClear={() => this.setState({ styleFilter: null })}
+            afterSelect={item => this.setState({ styleFilter: item.dataValue })}
+            reader={{
+              name: 'dataName',
             }}
             allowClear
           />
@@ -312,6 +397,23 @@ class StrategyUser extends Component {
           >
             新建
           </Button>
+          <Button
+            key="export"
+            type="primary"
+            onClick={() => {
+              this.handleEvent('export', null);
+            }}
+            ignore="true"
+          >
+            导出
+          </Button>
+          <Button onClick={() => this.downloadTemplate('可用的入参')}>模板</Button>
+          <DataImport
+            tableProps={{ columns, showSearch: false }}
+            validateFunc={this.validateItem}
+            validatedAll={true}
+            importFunc={this.uploadStrategyUser}          
+          />
         </Space>
       ),
     };
@@ -320,6 +422,7 @@ class StrategyUser extends Component {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      showSearch: false,
       dataSource: this.state.dataList,
       cascadeParams: {
         filter,
@@ -333,6 +436,8 @@ class StrategyUser extends Component {
 
     return {
       onSave: this.handleSave,
+      styleList: this.state.styleList,
+      moduleList: this.state.moduleList,
       editData,
       visible: modalVisible,
       onClose: this.handleClose,
