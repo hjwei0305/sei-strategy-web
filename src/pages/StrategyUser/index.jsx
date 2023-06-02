@@ -130,7 +130,6 @@ class StrategyUser extends Component {
       type: 'strategyUser/uploadStrategyUser',
       payload: data,
     }).then(res => {
-      debugger;
       if (res.success) {
         message.success('导入成功！');
         this.findByPage();
