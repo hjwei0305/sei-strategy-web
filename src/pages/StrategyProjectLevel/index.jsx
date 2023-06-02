@@ -159,7 +159,6 @@ class StrategyProjectLevel extends Component {
   };
 
   downloadTemplate = (type) => {
-    debugger;
     this.dispatchAction({
       type: 'strategyProjectLevel/downloadTemplate',
       payload: {

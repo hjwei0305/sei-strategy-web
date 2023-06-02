@@ -5,28 +5,49 @@
  * @Last Modified time: 2020-04-23 09:48:33
  */
 import { utils } from 'suid';
+import { constants } from '@/utils';
 
 const { request } = utils;
-
-const MockServerPath =
-  '/mock/5e02d29836608e42d52b1d81/template-service';
-const contextPath = '/simple-master';
+const { PROJECT_PATH, SERVER_PATH, LOCAL_PATH } = constants;
+const contextPath = '/strategyProjectScheme';
 
 /** 保存 */
 export async function save(data) {
-  const url = `${MockServerPath}${contextPath}/save`;
+  const url = `${PROJECT_PATH}${contextPath}/save`;
 
   return request.post(url, data);
 }
 
 /** 删除 */
 export async function del(params) {
-  const url = `${MockServerPath}${contextPath}/delete/${params.id}`;
+  const url = `${PROJECT_PATH}${contextPath}/delete/${params.id}`;
   return request.delete(url);
 }
 
 /** 分页查询 */
 export async function findByPage(params) {
-  const url = `${MockServerPath}${contextPath}/findByPage`;
+  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
   return request.post(url, params);
+}
+
+
+/** 查询员工所有信息 */
+export async function findByCode(param) {
+  const url = `${SERVER_PATH}/sei-basic/employee/findByCode?code=${param.code}`;
+  return request.get(url);
+}
+
+/** 下载模板 */
+export async function downloadTemplate() {
+  const url = `${LOCAL_PATH}/templates/项目周期配置导入模版.xlsx`;
+  return request({
+    url,
+    method: 'get',
+    responseType: 'blob', });
+}
+
+/** 导入 */
+export async function uploadStrategyProjectScheme(data) {
+  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyProjectScheme`;
+  return request.post(url, data);
 }

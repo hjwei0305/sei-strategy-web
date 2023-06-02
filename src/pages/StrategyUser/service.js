@@ -8,7 +8,7 @@ import { utils } from 'suid';
 import { constants } from '@/utils';
 
 const { request } = utils;
-const { PROJECT_PATH,SERVER_PATH } = constants;
+const { PROJECT_PATH,SERVER_PATH,LOCAL_PATH } = constants;
 const contextPath = '/strategyUser';
 
 
@@ -39,4 +39,19 @@ export async function getProOpt() {
     url,
     method: 'GET',
   });
+}
+
+/** 下载模板 */
+export async function downloadTemplate() {
+  const url = `${LOCAL_PATH}/templates/策略用户导入模版.xlsx`;
+  return request({
+    url,
+    method: 'get',
+    responseType: 'blob', });
+}
+
+/** 导入 */
+export async function uploadStrategyUser(data) {
+  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyUser`;
+  return request.post(url, data);
 }

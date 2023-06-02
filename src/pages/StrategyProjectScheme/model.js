@@ -6,7 +6,8 @@
  */
 import { message } from 'antd';
 import { utils } from 'suid';
-import { del, save,findByPage } from './service';
+import { del, save, findByPage, findByCode, downloadTemplate, uploadStrategyProjectScheme } from './service';
+import { downFile } from '@/utils';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -47,6 +48,31 @@ export default modelExtend(model, {
     },
     *findByPage({ payload }, { call }) {
       const result = yield call(findByPage, payload);
+      const { success, message: msg } = result || {};
+      message.destroy();
+      if (!success) {
+        message.error(msg);
+      }
+      return result;
+    },
+    *findByCode({ payload }, { call }) {
+      const result = yield call(findByCode, payload);
+      const { success, message: msg } = result || {};
+      message.destroy();
+      if (!success) {
+        message.error(msg);
+      }
+      return result;
+    },
+    *downloadTemplate({ payload }, { call }) {
+      console.log(payload.type)
+      const ds = yield call(downloadTemplate);
+      if (ds.success) {
+        downFile(ds.data,'项目周期配置导入模版.xlsx');
+      }
+    },
+    *uploadStrategyProjectScheme({ payload }, { call }) {
+      const result = yield call(uploadStrategyProjectScheme, payload);
       const { success, message: msg } = result || {};
       message.destroy();
       if (!success) {
