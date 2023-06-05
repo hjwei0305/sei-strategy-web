@@ -1,27 +1,29 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm, Input,message } from 'antd';
-import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
+import { Button, Popconfirm, Input } from 'antd';
+import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
-import { exportXlsx,constants } from '@/utils';
-
+import constants from '@/utils/constants';
 const { PROJECT_PATH } = constants;
 
 @withRouter
-@connect(({ strategyBillModule, loading }) => ({ strategyBillModule, loading }))
-class StrategyBillModule extends Component {
+@connect(({ strategyAnalyzeBill, loading }) => ({ strategyAnalyzeBill, loading }))
+class StrategyBills extends Component {
   state = {
     delId: null,
-    dataList: [],
+    datalist: [],
     moduleFilter: null,
-    codeFilter: null,
+    userNameFilter: null,
+    stateFilter: null,
+    moduleList:[],
   };
 
   constructor(prop) {
     super(prop);
     this.findByPage();
+    this.initModuleList();
   }
 
   dispatchAction = ({ type, payload }) => {
@@ -33,52 +35,12 @@ class StrategyBillModule extends Component {
     });
   };
 
-  getTableFilters = () => {
-    const filters = [];
-    if (this.state.moduleFilter) {
-      filters.push({
-        fieldName: 'module',
-        operator: 'LK',
-        fieldType: 'String',
-        value:this.state.moduleFilter,
-      });
-    }
-    if (this.state.codeFilter) {
-      filters.push({
-        fieldName: 'code',
-        operator: 'LK',
-        fieldType: 'String',
-        value:this.state.codeFilter,
-      });
-    }
-    return filters;
-  };
-
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyBillModule/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      if (res.success) {
-        const { rows } = res.data;
-        this.setState({
-          dataList: rows,
-        });
-
-      }
-    });
-  };
-
   handleEvent = (type, row) => {
     switch (type) {
       case 'add':
       case 'edit':
         this.dispatchAction({
-          type: 'strategyBillModule/updateState',
+          type: 'strategyAnalyzeBill/updateState',
           payload: {
             modalVisible: true,
             editData: row,
@@ -92,7 +54,7 @@ class StrategyBillModule extends Component {
           },
           () => {
             this.dispatchAction({
-              type: 'strategyBillModule/del',
+              type: 'strategyAnalyzeBill/del',
               payload: {
                 id: row.id,
               },
@@ -115,13 +77,13 @@ class StrategyBillModule extends Component {
   };
 
   handleSave = data => {
-      this.dispatchAction({
-      type: 'strategyBillModule/save',
+    this.dispatchAction({
+      type: 'strategyAnalyzeBill/save',
       payload: data,
     }).then(res => {
       if (res.success) {
         this.dispatchAction({
-          type: 'strategyBillModule/updateState',
+          type: 'strategyAnalyzeBill/updateState',
           payload: {
             modalVisible: false,
           },
@@ -133,7 +95,7 @@ class StrategyBillModule extends Component {
 
   handleClose = () => {
     this.dispatchAction({
-      type: 'strategyBillModule/updateState',
+      type: 'strategyAnalyzeBill/updateState',
       payload: {
         modalVisible: false,
         editData: null,
@@ -144,97 +106,81 @@ class StrategyBillModule extends Component {
   renderDelBtn = row => {
     const { loading } = this.props;
     const { delId } = this.state;
-    if (loading.effects['strategyBillModule/del'] && delId === row.id) {
+    if (loading.effects['strategyAnalyzeBill/del'] && delId === row.id) {
       return <ExtIcon status="error" tooltip={{ title: '删除' }} type="loading" antd />;
     }
     return <ExtIcon status="error" tooltip={{ title: '删除' }} type="delete" antd />;
   };
 
-  handlerExport = () => {
-    const filters = this.getTableFilters();
-    request.post(`${PROJECT_PATH}/strategyBillModule/export`, {filters}).then(res => {
-      if (res.success && res.data.length > 0) {
-        exportXlsx(
-          '策略模块',
-          [
-            'id',
-            '代码',
-            '模块',
-            '创建人',
-            '创建时间',
-          ],
-          res.data);
-      }else{
-        message.error(res.message);
-      }
+  initModuleList = () => {
+    request.post(`${PROJECT_PATH}/strategyBillModule/export`, {}).then(res => {
+      const { data } = res;
+      this.setState({
+        moduleList: data,
+      });
     });
   };
 
-  downloadTemplate = (type) => {
-    this.dispatchAction({
-      type: 'strategyBillModule/downloadTemplate',
-      payload: {
-        type: type,
-      },
-    });
-  }
+  getTableFilters = () => {
+    const filters = [];
+    if (this.state.moduleFilter) {
+      filters.push({
+        fieldName: 'module',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.moduleFilter,
+      });
+    }
+    if (this.state.userNameFilter) {
+      filters.push({
+        fieldName: 'userName',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.userNameFilter,
+      });
+    }
+    if (this.state.stateFilter) {
+      filters.push({
+        fieldName: 'state',
+        operator: 'LK',
+        fieldType: 'String',
+        value:this.state.stateFilter,
+      });
+    }
+    return filters;
+  };
 
-  uploadStrategyBillModule = (data) => {
+  findByPage = () => {
     const { dispatch } = this.props;
+    const filters = this.getTableFilters();
     dispatch({
-      type: 'strategyBillModule/uploadStrategyBillModule',
-      payload:  data,
+      type: 'strategyAnalyzeBill/findByPage',
+      payload: {
+        filters,
+      },
     }).then(res => {
       if (res.success) {
-        this.findByPage();
+        const { rows } = res.data;
+        this.setState({
+          dataList: rows,
+        });
       }
-    }
-    );
-  }
-
-  validateItem = (data) => {
-    return data.map(item => {
-      if (!item.module) {
-        debugger;
-        return {
-          ...item,
-          validate: false,
-          status: '验证失败',
-          statusCode: 'error',
-          message: '模块不能为空',
-        }
-      }else if (!item.code) {
-        return {
-          ...item,
-          validate: false,
-          status: '验证失败',
-          statusCode: 'error',
-          message: '代码不能为空',
-        }
-      }
-      return {
-        ...item,
-        validate: true,
-        status: '验证通过',
-        statusCode: 'success',
-        message: '验证通过',
-      };
     });
-  }
+  };
 
   getExtableProps = () => {
     const columns = [
       {
         title: '序号',
         dataIndex: 'index',
-        width: 80,
+        width: 60,
         align: 'center',
         render: (_, __, index) => index + 1,
       },
       {
         title: '操作',
         key: 'operation',
-        width: 300,
+        width: 100,
         align: 'center',
         dataIndex: 'id',
         className: 'action',
@@ -262,52 +208,121 @@ class StrategyBillModule extends Component {
         ),
       },
       {
-        title: '代码',
-        dataIndex: 'code',
-        width: 220,
+        title: '年份',
+        dataIndex: 'year',
+        width: 120,
         required: true,
       },
       {
-        title: '模块',
+        title: '经营策略项目',
+        dataIndex: 'strategyName',
+        width: 360,
+        required: true,
+      },
+      {
+        title: '所属模块',
         dataIndex: 'module',
-        width: 220,
+        width: 120,
         required: true,
       },
       {
-        title: '提交人',
-        dataIndex: 'creatorName',
-        width: 220,
+        title: '工号',
+        dataIndex: 'userCode',
+        width: 120,
         required: true,
       },
       {
-        title: '提交时间',
+        title: '项目负责人',
+        dataIndex: 'userName',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '职位',
+        dataIndex: 'userPosition',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '工号',
+        dataIndex: 'userCode1',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '模块对接人',
+        dataIndex: 'userName1',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '工号',
+        dataIndex: 'userCode2',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '经营策略管理组成员',
+        dataIndex: 'userName2',
+        width: 180,
+        required: true,
+      },
+      {
+        title: '新建日期',
         dataIndex: 'createdDate',
-        width: 220,
+        width: 180,
+        required: true,
+      },
+      {
+        title: '单号',
+        dataIndex: 'billNo',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '状态',
+        dataIndex: 'state',
+        width: 120,
+        required: true,
+      },
+      {
+        title: '更新日期',
+        dataIndex: 'lastEditedDate',
+        width: 180,
         required: true,
       },
     ];
     const toolBarProps = {
       left: (
         <Space>
-          所属模块：{''}
+          所属模块：{' '}
           <Input
-            style={{ width: 200 }}
-            placeholder="请输入"
+            style={{ width: 120 }}
             onChange={e => {
               this.setState({
                 moduleFilter: e.target.value,
               });
             }}
-            allowClear
           />
-          <Button
-            type="primary"
-            onClick={() => {
-              this.findByPage();
+          责任人姓名：{' '}
+          <Input
+            style={{ width: 120 }}
+            onChange={e => {
+              this.setState({
+                userNameFilter: e.target.value,
+              });
             }}
-          >
-            查询
-          </Button>
+          />
+          当前阶段：{' '}
+          <Input
+            style={{ width: 120 }}
+            onChange={e => {
+              this.setState({
+                stateFilter: e.target.value,
+              });
+            }}
+          />
+          <Button type='primary' onClick={this.findByPage}>查找</Button>
           <Button
             key="add"
             type="primary"
@@ -318,24 +333,14 @@ class StrategyBillModule extends Component {
           >
             新建
           </Button>
-          <Button onClick={this.handlerExport}>导出</Button>
-          <Button onClick={() => this.downloadTemplate('可用的入参')}>模板</Button>
-          <DataImport
-            tableProps={{ columns, showSearch: false }}
-            validateFunc={this.validateItem}
-            validatedAll={true}
-            importFunc={this.uploadStrategyBillModule}
-          />
         </Space>
       ),
     };
-
     const filter = this.getTableFilters();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
-      remotePaging: false,
       showSearch: false,
       dataSource: this.state.dataList,
       cascadeParams: {
@@ -345,21 +350,22 @@ class StrategyBillModule extends Component {
   };
 
   getEditModalProps = () => {
-    const { loading, strategyBillModule } = this.props;
-    const { modalVisible, editData } = strategyBillModule;
+    const { loading, strategyAnalyzeBill } = this.props;
+    const { modalVisible, editData } = strategyAnalyzeBill;
 
     return {
       onSave: this.handleSave,
       editData,
       visible: modalVisible,
       onClose: this.handleClose,
-      saving: loading.effects['strategyBillModule/save'],
+      saving: loading.effects['strategyAnalyzeBill/save'],
+      moduleList: this.state.moduleList,
     };
   };
 
   render() {
-    const { strategyBillModule } = this.props;
-    const { modalVisible } = strategyBillModule;
+    const { strategyAnalyzeBill } = this.props;
+    const { modalVisible } = strategyAnalyzeBill;
 
     return (
       <>
@@ -370,4 +376,4 @@ class StrategyBillModule extends Component {
   }
 }
 
-export default StrategyBillModule;
+export default StrategyBills;

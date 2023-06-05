@@ -93,6 +93,12 @@ class StrategyUser extends Component {
     dispatch({
       type: 'strategyUser/findByPage',
       payload: {
+        sortOrders: [
+          {
+            property: 'moduleCode',
+            direction: 'ASC',
+          }
+        ],
         filters,
       },
     }).then(res => {

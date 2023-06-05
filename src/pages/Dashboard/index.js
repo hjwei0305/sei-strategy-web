@@ -61,6 +61,27 @@ const menuData = [
       },
     ],
   },
+  {
+    id: '30',
+    name: '经营策略管理',
+    children: [
+      {
+        id: '300',
+        name: '经营策略管理',
+        path: '/strategy/StrategyBills',
+      },
+      {
+        id: '301',
+        name: '经营分析落地',
+        path: '/strategy/StrategyAnalyzeBill',
+      },
+      {
+        id: '302',
+        name: '变更管理',
+        path: '/strategy/StrategyProjectChange',
+      },
+    ]
+  },
 ];
 
 const getIcon = icon => {
