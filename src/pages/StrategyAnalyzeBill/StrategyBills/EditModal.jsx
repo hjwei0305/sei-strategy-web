@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Input } from 'antd';
+import { Form, Input, Select } from 'antd';
 import { ComboList, ExtModal,YearPicker } from 'suid';
 
 const FormItem = Form.Item;
@@ -99,6 +99,16 @@ class FormModal extends PureComponent {
                   field: ['module'],
                 }}
               />
+            )}
+          </FormItem>
+          <FormItem label="是否开立">
+            {getFieldDecorator('state', {
+              initialValue: editData && editData.state===1?'1':'0',
+            })(
+              <Select disabled={editData}>
+                <Select.Option value="1">开立</Select.Option>
+                <Select.Option value="0">关闭</Select.Option>
+              </Select>
             )}
           </FormItem>
         </Form>

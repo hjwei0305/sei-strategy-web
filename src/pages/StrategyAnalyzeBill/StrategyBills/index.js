@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm, Input } from 'antd';
-import { ExtTable, ExtIcon, Space } from 'suid';
+import { Button, Popconfirm, Input, message } from 'antd';
+import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
-import constants from '@/utils/constants';
+import { exportXlsx, constants } from '@/utils';
 const { PROJECT_PATH } = constants;
 
 @withRouter
@@ -34,6 +34,59 @@ class StrategyBills extends Component {
       payload,
     });
   };
+
+  validateItem = data => {
+    return data.map(item => {
+      if (!item.year) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '年份不能为空',
+        }
+      }
+      if (!item.strategyName) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '经营策略项目不能为空',
+        }
+      }
+      return {
+        ...item,
+        validate: true,
+        status: '验证通过',
+        statusCode: 'success',
+        message: '验证通过',
+      };
+    });
+  };
+
+  uploadStrategyAnalyzeBill = data => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'strategyAnalyzeBill/uploadStrategyAnalyzeBill',
+      payload: data,
+    }).then(res => {
+      if (res.success) {
+        message.success('导入成功！');
+        this.findByPage();
+      }
+    });
+  };
+
+  downloadTemplate = (type) => {
+    this.dispatchAction({
+      type: 'strategyAnalyzeBill/downloadTemplate',
+      payload: {
+        type: type
+      }
+    });
+  };
+
 
   handleEvent = (type, row) => {
     switch (type) {
@@ -71,6 +124,36 @@ class StrategyBills extends Component {
           },
         );
         break;
+        case 'export':
+          const filters = this.getTableFilters();
+          request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
+            if (res.success && res.data.length > 0) {
+              exportXlsx(
+                '策略用户',
+                [
+                  'id',
+                  '年份',
+                  '经营策略项目',
+                  '模块Code',
+                  '所属模块',
+                  '员工',
+                  '项目负责人',
+                  '职位',
+                  '工号',
+                  '模块对接人',
+                  '工号',
+                  '经营策略管理组成员',
+                  '新建日期',
+                  '单号',
+                  '状态',
+                  '更新日期',
+                ],
+                res.data);
+            }else{
+              message.error(res.message);
+            }
+          });
+          break;
       default:
         break;
     }
@@ -275,7 +358,7 @@ class StrategyBills extends Component {
       },
       {
         title: '单号',
-        dataIndex: 'billNo',
+        dataIndex: 'code',
         width: 120,
         required: true,
       },
@@ -284,6 +367,15 @@ class StrategyBills extends Component {
         dataIndex: 'state',
         width: 120,
         required: true,
+        render: text => {
+          if (text === '0') {
+            return '关闭';
+          }
+          if (text === '1') {
+            return '开立';
+          }
+          return '';
+        }
       },
       {
         title: '更新日期',
@@ -293,6 +385,7 @@ class StrategyBills extends Component {
       },
     ];
     const toolBarProps = {
+      layout: {leftSpan: 22, rightSpan: 2},
       left: (
         <Space>
           所属模块：{' '}
@@ -303,6 +396,7 @@ class StrategyBills extends Component {
                 moduleFilter: e.target.value,
               });
             }}
+            allowClear
           />
           责任人姓名：{' '}
           <Input
@@ -312,6 +406,7 @@ class StrategyBills extends Component {
                 userNameFilter: e.target.value,
               });
             }}
+            allowClear
           />
           当前阶段：{' '}
           <Input
@@ -321,6 +416,7 @@ class StrategyBills extends Component {
                 stateFilter: e.target.value,
               });
             }}
+            allowClear
           />
           <Button type='primary' onClick={this.findByPage}>查找</Button>
           <Button
@@ -333,6 +429,23 @@ class StrategyBills extends Component {
           >
             新建
           </Button>
+          <Button
+            key="export"
+            type="primary"
+            onClick={() => {
+              this.handleEvent('export', null);
+            }}
+            ignore="true"
+          >
+            导出
+          </Button>
+          <Button onClick={() => this.downloadTemplate('可用的入参')}>模板</Button>
+          <DataImport
+            tableProps={{ columns, showSearch: false }}
+            validateFunc={this.validateItem}
+            validatedAll={true}
+            importFunc={this.uploadStrategyAnalyzeBill}          
+          />
         </Space>
       ),
     };

@@ -29,3 +29,18 @@ export async function findByPage(params) {
   const url = `${PROJECT_PATH}${contextPath}/findByPage`;
   return request.post(url, params);
 }
+
+/** 下载模板 */
+export async function downloadTemplate(params) {
+  const url = `${LOCAL_PATH}/templates/经营策略导入模版.xlsx`;
+  return request({
+    url,
+    method: 'get',
+    responseType: 'blob', });
+}
+
+/** 导入 */
+export async function uploadStrategyAnalyzeBill(params) {
+  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyAnalyzeBill`;
+  return request.post(url, params);
+}
