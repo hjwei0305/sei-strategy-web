@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm, Input } from 'antd';
+import { Button, Popconfirm, Input, message } from 'antd';
 import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
-import constants from '@/utils/constants';
+import { exportXlsx, constants } from '@/utils';
 const { PROJECT_PATH } = constants;
 
 @withRouter
@@ -37,7 +37,6 @@ class StrategyAnalyzeBill extends Component {
 
   handleEvent = (type, row) => {
     switch (type) {
-      case 'add':
       case 'edit':
         this.dispatchAction({
           type: 'strategyAnalyzeBill/updateState',
@@ -47,30 +46,36 @@ class StrategyAnalyzeBill extends Component {
           },
         });
         break;
-      case 'del':
-        this.setState(
-          {
-            delId: row.id,
-          },
-          () => {
-            this.dispatchAction({
-              type: 'strategyAnalyzeBill/del',
-              payload: {
-                id: row.id,
-              },
-            }).then(res => {
-              if (res.success) {
-                this.setState(
-                  {
-                    delId: null,
-                  },
-                  () => this.findByPage(),
-                );
-              }
-            });
-          },
-        );
-        break;
+        case 'export':
+          const filters = this.getTableFilters();
+          request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
+            if (res.success && res.data.length > 0) {
+              exportXlsx(
+                '经营策略',
+                [
+                  'id',
+                  '年份',
+                  '经营策略项目',
+                  '模块Code',
+                  '所属模块',
+                  '员工',
+                  '项目负责人',
+                  '职位',
+                  '工号',
+                  '模块对接人',
+                  '工号',
+                  '经营策略管理组成员',
+                  '新建日期',
+                  '单号',
+                  '状态',
+                  '更新日期',
+                ],
+                res.data);
+            }else{
+              message.error(res.message);
+            }
+          });
+          break;
       default:
         break;
     }
@@ -190,25 +195,25 @@ class StrategyAnalyzeBill extends Component {
         required: true,
       },
       {
-        title: '责任人工号',
+        title: '工号',
         dataIndex: 'userCode',
         width: 120,
         required: true,
       },
       {
-        title: '责任人姓名',
+        title: '项目负责人',
         dataIndex: 'userName',
         width: 120,
         required: true,
       },
       {
-        title: '责任人职位',
+        title: '职位',
         dataIndex: 'userPosition',
         width: 120,
         required: true,
       },
       {
-        title: '关联项目',
+        title: '关联项目名称',
         dataIndex: 'project',
         width: 120,
         required: true,
@@ -228,13 +233,25 @@ class StrategyAnalyzeBill extends Component {
       {
         title: '操作',
         key: 'operation',
-        width: 100,
+        width: 400,
         align: 'center',
         dataIndex: 'id',
         className: 'action',
         required: true,
         render: (_, record) => (
           <Space>
+            <div style={{color:'#1890ff',cursor:'pointer'}} 
+                 onClick={() => this.handleEvent(record)}>关联项目
+            </div>
+            <div style={{color:'#666',cursor:'pointer'}}
+                  onClick={() => this.handleEvent(record)}>提交项目
+            </div>
+            <div style={{color:'#666',cursor:'pointer'}}
+                  onClick={() => this.handleEvent(record)}>项目确认
+            </div>
+            <div style={{color:'#666',cursor:'pointer'}}
+                  onClick={() => this.handleEvent(record)}>变更申请
+            </div>
             <ExtIcon
               key="edit"
               className="edit"
@@ -256,15 +273,15 @@ class StrategyAnalyzeBill extends Component {
         ),
       },
       {
-        title: '单据编号',
-        dataIndex: 'billNo',
-        width: 120,
+        title: '单号',
+        dataIndex: 'code',
+        width: 150,
         required: true,
       },
       {
         title: '变更次数',
         dataIndex: 'changeCount',
-        width: 220,
+        width: 80,
         required: true,
       },
     ];
@@ -279,6 +296,7 @@ class StrategyAnalyzeBill extends Component {
                 moduleFilter: e.target.value,
               });
             }}
+            allowClear
           />
           责任人姓名：{' '}
           <Input
@@ -288,6 +306,7 @@ class StrategyAnalyzeBill extends Component {
                 userNameFilter: e.target.value,
               });
             }}
+            allowClear
           />
           当前阶段：{' '}
           <Input
@@ -297,17 +316,18 @@ class StrategyAnalyzeBill extends Component {
                 stateFilter: e.target.value,
               });
             }}
+            allowClear
           />
           <Button type='primary' onClick={this.findByPage}>查找</Button>
           <Button
-            key="add"
+            key="export"
             type="primary"
             onClick={() => {
-              this.handleEvent('add', null);
+              this.handleEvent('export', null);
             }}
             ignore="true"
           >
-            新建
+            导出
           </Button>
         </Space>
       ),

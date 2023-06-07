@@ -129,7 +129,7 @@ class StrategyBills extends Component {
           request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
             if (res.success && res.data.length > 0) {
               exportXlsx(
-                '策略用户',
+                '经营策略',
                 [
                   'id',
                   '年份',
@@ -359,7 +359,7 @@ class StrategyBills extends Component {
       {
         title: '单号',
         dataIndex: 'code',
-        width: 120,
+        width: 150,
         required: true,
       },
       {

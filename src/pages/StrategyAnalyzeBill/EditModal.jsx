@@ -31,7 +31,7 @@ class FormModal extends PureComponent {
   render() {
     const { form, editData, onClose, saving, visible,  moduleList } = this.props;
     const { getFieldDecorator } = form;
-    const title = editData ? '编辑' : '新增';
+    const title = '关联项目';
 
     return (
       <ExtModal
@@ -42,9 +42,10 @@ class FormModal extends PureComponent {
         confirmLoading={saving}
         maskClosable={false}
         title={title}
+        width={900}
         onOk={this.handleSave}
       >
-        <Form {...formItemLayout} layout="horizontal">
+        <Form {...formItemLayout} >
           <FormItem label="经营策略项目">
             {getFieldDecorator('strategyName', {
               initialValue: editData && editData.strategyName,
@@ -56,8 +57,7 @@ class FormModal extends PureComponent {
               ],
             })(<Input disabled={!!editData || saving} />)}
           </FormItem>
-          <FormItem label="模块Code" 
-          // style={{display:'none'}}
+          <FormItem label="模块Code" style={{display:'none'}}
           >
             {
             getFieldDecorator('moduleCode', {
