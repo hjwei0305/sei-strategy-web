@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm, Input, message } from 'antd';
+import { Button, Input, message } from 'antd';
 import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
@@ -35,9 +35,40 @@ class StrategyAnalyzeBill extends Component {
     });
   };
 
+  handlerExport = () => {
+    const filters = this.getTableFilters();
+    request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
+      if (res.success && res.data.length > 0) {
+        exportXlsx(
+          '经营策略',
+          [
+            'id',
+            '年份',
+            '经营策略项目',
+            '模块Code',
+            '所属模块',
+            '员工',
+            '项目负责人',
+            '职位',
+            '工号',
+            '模块对接人',
+            '工号',
+            '经营策略管理组成员',
+            '新建日期',
+            '单号',
+            '状态',
+            '更新日期',
+          ],
+          res.data);
+      }else{
+        message.error(res.message);
+      }
+    });
+  }
+
   handleEvent = (type, row) => {
     switch (type) {
-      case 'edit':
+      case 'relevancy':
         this.dispatchAction({
           type: 'strategyAnalyzeBill/updateState',
           payload: {
@@ -46,36 +77,6 @@ class StrategyAnalyzeBill extends Component {
           },
         });
         break;
-        case 'export':
-          const filters = this.getTableFilters();
-          request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
-            if (res.success && res.data.length > 0) {
-              exportXlsx(
-                '经营策略',
-                [
-                  'id',
-                  '年份',
-                  '经营策略项目',
-                  '模块Code',
-                  '所属模块',
-                  '员工',
-                  '项目负责人',
-                  '职位',
-                  '工号',
-                  '模块对接人',
-                  '工号',
-                  '经营策略管理组成员',
-                  '新建日期',
-                  '单号',
-                  '状态',
-                  '更新日期',
-                ],
-                res.data);
-            }else{
-              message.error(res.message);
-            }
-          });
-          break;
       default:
         break;
     }
@@ -220,7 +221,7 @@ class StrategyAnalyzeBill extends Component {
       },
       {
         title: '提交人',
-        dataIndex: 'submitUser',
+        dataIndex: 'creatorName',
         width: 120,
         required: true,
       },
@@ -233,7 +234,7 @@ class StrategyAnalyzeBill extends Component {
       {
         title: '操作',
         key: 'operation',
-        width: 400,
+        width: 300,
         align: 'center',
         dataIndex: 'id',
         className: 'action',
@@ -241,34 +242,17 @@ class StrategyAnalyzeBill extends Component {
         render: (_, record) => (
           <Space>
             <div style={{color:'#1890ff',cursor:'pointer'}} 
-                 onClick={() => this.handleEvent(record)}>关联项目
+                 onClick={() => this.handleEvent('relevancy',record)}>关联项目
             </div>
             <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent(record)}>提交项目
+                  onClick={() => this.handleEvent('subimit',record)}>提交项目
             </div>
             <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent(record)}>项目确认
+                  onClick={() => this.handleEvent('affirm',record)}>项目确认
             </div>
             <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent(record)}>变更申请
+                  onClick={() => this.handleEvent('change',record)}>变更申请
             </div>
-            <ExtIcon
-              key="edit"
-              className="edit"
-              onClick={() => this.handleEvent('edit', record)}
-              type="edit"
-              status="success"
-              tooltip={{ title: '编辑' }}
-              antd
-            />
-            <Popconfirm
-              key="del"
-              placement="topLeft"
-              title="确定要删除吗？"
-              onConfirm={() => this.handleEvent('del', record)}
-            >
-              {this.renderDelBtn(record)}
-            </Popconfirm>
           </Space>
         ),
       },
@@ -323,7 +307,7 @@ class StrategyAnalyzeBill extends Component {
             key="export"
             type="primary"
             onClick={() => {
-              this.handleEvent('export', null);
+              this.handlerExport();
             }}
             ignore="true"
           >

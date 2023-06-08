@@ -71,5 +71,6 @@ export default modelExtend(model, {
       }
       return result;
     }
+    
   },
 });

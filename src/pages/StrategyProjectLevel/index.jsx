@@ -136,7 +136,6 @@ class StrategyProjectLevel extends Component {
   };
 
   handlerExport = () => {
-    debugger;
     const filters = this.getTableFilters();
     request.post(`${PROJECT_PATH}/strategyProjectLevel/export`, {filters}).then(res => {
       if (res.success&&res.data.length>0) {
