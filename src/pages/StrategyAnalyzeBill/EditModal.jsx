@@ -1,6 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Form, Input, Row, Col } from 'antd';
 import { ExtModal, ComboList } from 'suid';
+import { constants } from '@/utils';
+const { PROJECT_PATH } = constants;
+const { ComboMultiList } = ComboList;
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -32,6 +35,31 @@ class FormModal extends PureComponent {
     const { form, editData, onClose, saving, visible } = this.props;
     const { getFieldDecorator } = form;
     const title = '关联项目';
+
+    const followProps = {
+      placeholder: '请选择经营策略',
+      form,
+      width: 600,
+      name: 'strategyCode',
+      field: ['strategyCode'],
+      store: {
+        type: 'post',
+        url: `${PROJECT_PATH}/strategyAnalyzeBill/findByPage`,
+      },
+      searchPlaceHolder: '请选择经营策略',
+      ListProps:'vertical',
+      allowClear: true,
+      remotePaging: true,
+      rowKey: 'id',
+      showSearch: true,
+      pagination: true,
+      searchProperties: ['code', 'strategyName'],
+      reader: {
+        name: 'code',
+        description: 'strategyName',
+        field: ['code'],
+      },
+    };
 
     return (
       <ExtModal
@@ -108,18 +136,18 @@ class FormModal extends PureComponent {
               </FormItem>
             </Col>
           </Row>
-          <Row gutter={24} justify="space-left">
+          <Row gutter={24} justify="space-around">
             <Col span={24}>
               <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label="经营策略项目">
-                {getFieldDecorator('description', {
-                  initialValue: editData && editData.description,
+                {getFieldDecorator('strategyCode', {
+                  initialValue: editData && editData.strategyCode,
                   rules: [
                     {
                       required: true,
-                      message: '问题描述不能为空',
+                      message: '经营策略不能为空',
                     },
                   ],
-                })(<ComboList />)}
+                })(<ComboMultiList {...followProps}/>)}
               </FormItem>
             </Col>
           </Row>
@@ -138,7 +166,7 @@ class FormModal extends PureComponent {
               </FormItem>
             </Col>
           </Row>
-          <Row gutter={24} justify="space-left">
+          <Row gutter={24} justify="space-around">
             <Col span={24}>
               <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label="关联项目名称：">
                 {getFieldDecorator('description', {

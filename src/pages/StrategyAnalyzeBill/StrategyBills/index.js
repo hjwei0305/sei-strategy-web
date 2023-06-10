@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Button, Popconfirm, Input, message } from 'antd';
+import { Button, Input, message } from 'antd';
 import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
@@ -260,36 +260,36 @@ class StrategyBills extends Component {
         align: 'center',
         render: (_, __, index) => index + 1,
       },
-      {
-        title: '操作',
-        key: 'operation',
-        width: 100,
-        align: 'center',
-        dataIndex: 'id',
-        className: 'action',
-        required: true,
-        render: (_, record) => (
-          <Space>
-            <ExtIcon
-              key="edit"
-              className="edit"
-              onClick={() => this.handleEvent('edit', record)}
-              type="edit"
-              status="success"
-              tooltip={{ title: '编辑' }}
-              antd
-            />
-            <Popconfirm
-              key="del"
-              placement="topLeft"
-              title="确定要删除吗？"
-              onConfirm={() => this.handleEvent('del', record)}
-            >
-              {this.renderDelBtn(record)}
-            </Popconfirm>
-          </Space>
-        ),
-      },
+      // {
+      //   title: '操作',
+      //   key: 'operation',
+      //   width: 100,
+      //   align: 'center',
+      //   dataIndex: 'id',
+      //   className: 'action',
+      //   required: true,
+      //   render: (_, record) => (
+      //     <Space>
+      //       <ExtIcon
+      //         key="edit"
+      //         className="edit"
+      //         onClick={() => this.handleEvent('edit', record)}
+      //         type="edit"
+      //         status="success"
+      //         tooltip={{ title: '编辑' }}
+      //         antd
+      //       />
+      //       <Popconfirm
+      //         key="del"
+      //         placement="topLeft"
+      //         title="确定要删除吗？"
+      //         onConfirm={() => this.handleEvent('del', record)}
+      //       >
+      //         {this.renderDelBtn(record)}
+      //       </Popconfirm>
+      //     </Space>
+      //   ),
+      // },
       {
         title: '年份',
         dataIndex: 'year',

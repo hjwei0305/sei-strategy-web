@@ -37,6 +37,7 @@ class StrategyUser extends Component {
     });
   };
 
+  // 人员类别
   componentdidmount = ()  =>{
     this.dispatchAction({
       type: 'strategyUser/getProOpt',
@@ -48,6 +49,8 @@ class StrategyUser extends Component {
       });
     })
   }
+
+  // 模块导出
   initModuleList = () => {
     request.post(`${PROJECT_PATH}/strategyBillModule/export`, {}).then(res => {
       const { data } = res;
@@ -417,7 +420,7 @@ class StrategyUser extends Component {
             tableProps={{ columns, showSearch: false }}
             validateFunc={this.validateItem}
             validatedAll={true}
-            importFunc={this.uploadStrategyUser}          
+            importFunc={this.uploadStrategyUser}
           />
         </Space>
       ),

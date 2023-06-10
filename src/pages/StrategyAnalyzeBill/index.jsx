@@ -6,7 +6,7 @@ import { ExtTable, ExtIcon, Space } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
 import { exportXlsx, constants } from '@/utils';
-const { PROJECT_PATH } = constants;
+const { PROJECT_PATH,SERVER_PATH } = constants;
 
 @withRouter
 @connect(({ strategyAnalyzeBill, loading }) => ({ strategyAnalyzeBill, loading }))
@@ -18,13 +18,24 @@ class StrategyAnalyzeBill extends Component {
     userNameFilter: null,
     stateFilter: null,
     moduleList:[],
+    stateList: [],
   };
 
   constructor(prop) {
     super(prop);
     this.findByPage();
     this.initModuleList();
+    this.initStateList();
   }
+
+  initStateList = () => {
+    request.get(`${SERVER_PATH}/dms/dataDict/getCanUseDataDictValues?dictCode=StrategyState`, {}).then(res => {
+      const { data } = res;
+      this.setState({
+        stateList: data,
+      });
+    });
+  };
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -227,9 +238,15 @@ class StrategyAnalyzeBill extends Component {
       },
       {
         title: '当前阶段',
-        dataIndex: 'currentStage',
+        dataIndex: 'stage',
         width: 120,
         required: true,
+        render:(_, record) => {
+          for(let i of this.state.stateList){
+            if(i.dataValue === record.stage){     
+              return i.dataName
+            }
+          }}
       },
       {
         title: '操作',
@@ -239,23 +256,69 @@ class StrategyAnalyzeBill extends Component {
         dataIndex: 'id',
         className: 'action',
         required: true,
-        render: (_, record) => (
-          <Space>
-            <div style={{color:'#1890ff',cursor:'pointer'}} 
-                 onClick={() => this.handleEvent('relevancy',record)}>关联项目
-            </div>
-            <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent('subimit',record)}>提交项目
-            </div>
-            <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent('affirm',record)}>项目确认
-            </div>
-            <div style={{color:'#666',cursor:'pointer'}}
-                  onClick={() => this.handleEvent('change',record)}>变更申请
-            </div>
-          </Space>
-        ),
-      },
+        render: (_, record) => {
+          if(record.stage === 'relevancy'){
+            return (
+              <Space>
+                <div style={{color:'#1890ff',cursor:'pointer'}} 
+                     onClick={() => this.handleEvent('relevancy',record)}>关联项目
+                </div>
+                <div style={{color:'#666'}}>提交项目
+                </div>
+                <div style={{color:'#666'}}>项目确认
+                </div>
+                <div style={{color:'#666'}}>变更申请
+                </div>
+              </Space>
+            )
+          }
+          if(record.stage === 'subimit'){
+            return (
+              <Space>
+                <div style={{color:'#666'}}>关联项目
+                </div>
+                <div style={{color:'#1890ff',cursor:'pointer'}}
+                      onClick={() => this.handleEvent('subimit',record)}>提交项目
+                </div>
+                <div style={{color:'#666'}}>项目确认
+                </div>
+                <div style={{color:'#666'}}>变更申请
+                </div>
+              </Space>
+            )
+          }
+          if(record.stage === 'affirm'){
+            return (
+              <Space>
+                <div style={{color:'#666'}}>关联项目
+                </div>
+                <div style={{color:'#666'}}>提交项目
+                </div>
+                <div style={{color:'#1890ff',cursor:'pointer'}}
+                      onClick={() => this.handleEvent('affirm',record)}>项目确认
+                </div>
+                <div style={{color:'#666'}}>变更申请
+                </div>
+              </Space>
+            )
+          }
+          if(record.stage === 'change'){
+            return (
+              <Space>
+                <div style={{color:'#666'}}>关联项目
+                </div>
+                <div style={{color:'#666'}}>提交项目
+                </div>
+                <div style={{color:'#666'}}>项目确认
+                </div>
+                <div style={{color:'#1890ff',cursor:'pointer'}}
+                      onClick={() => this.handleEvent('change',record)}>变更申请
+                </div>
+              </Space>
+            )
+          }
+        }
+        },
       {
         title: '单号',
         dataIndex: 'code',
