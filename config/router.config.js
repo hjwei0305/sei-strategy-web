@@ -55,14 +55,19 @@ export default [
             title:  "经营策略人员信息",
           },
           {
-            path: "/strategy/StrategyBills",
-            component: "./StrategyAnalyzeBill/StrategyBills",
-            title:  "经营策略管理",
-          },
-          {
             path: "/strategy/StrategyAnalyzeBill",
             component: "./StrategyAnalyzeBill",
-            title:  "经营策略分析落地",
+            title:  "经营策略管理",
+          },
+          // {
+          //   path: "/strategy/StrategyAnalyzeBill",
+          //   component: "./StrategyAnalyzeBill",
+          //   title:  "经营策略分析落地",
+          // },
+          {
+            path: "/strategy/StrategyHeader",
+            component: "./StrategyHeader",
+            title:  "经营策略分析落地2",
           },
         ]
       }

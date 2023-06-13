@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
 import { Button, Input, message } from 'antd';
-import { ExtTable, ExtIcon, Space } from 'suid';
+import { ExtTable, ExtIcon, Space, DataImport } from 'suid';
 import EditModal from './EditModal';
 import { request } from 'suid/lib/utils';
 import { exportXlsx, constants } from '@/utils';
-const { PROJECT_PATH,SERVER_PATH } = constants;
+const { PROJECT_PATH } = constants;
 
 @withRouter
 @connect(({ strategyAnalyzeBill, loading }) => ({ strategyAnalyzeBill, loading }))
-class StrategyAnalyzeBill extends Component {
+class StrategyBills extends Component {
   state = {
     delId: null,
     datalist: [],
@@ -18,24 +18,13 @@ class StrategyAnalyzeBill extends Component {
     userNameFilter: null,
     stateFilter: null,
     moduleList:[],
-    stateList: [],
   };
 
   constructor(prop) {
     super(prop);
     this.findByPage();
     this.initModuleList();
-    this.initStateList();
   }
-
-  initStateList = () => {
-    request.get(`${SERVER_PATH}/dms/dataDict/getCanUseDataDictValues?dictCode=StrategyState`, {}).then(res => {
-      const { data } = res;
-      this.setState({
-        stateList: data,
-      });
-    });
-  };
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -46,40 +35,63 @@ class StrategyAnalyzeBill extends Component {
     });
   };
 
-  handlerExport = () => {
-    const filters = this.getTableFilters();
-    request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
-      if (res.success && res.data.length > 0) {
-        exportXlsx(
-          '经营策略',
-          [
-            'id',
-            '年份',
-            '经营策略项目',
-            '模块Code',
-            '所属模块',
-            '员工',
-            '项目负责人',
-            '职位',
-            '工号',
-            '模块对接人',
-            '工号',
-            '经营策略管理组成员',
-            '新建日期',
-            '单号',
-            '状态',
-            '更新日期',
-          ],
-          res.data);
-      }else{
-        message.error(res.message);
+  validateItem = data => {
+    return data.map(item => {
+      if (!item.year) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '年份不能为空',
+        }
+      }
+      if (!item.strategyName) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '经营策略项目不能为空',
+        }
+      }
+      return {
+        ...item,
+        validate: true,
+        status: '验证通过',
+        statusCode: 'success',
+        message: '验证通过',
+      };
+    });
+  };
+
+  uploadStrategyAnalyzeBill = data => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'strategyAnalyzeBill/uploadStrategyAnalyzeBill',
+      payload: data,
+    }).then(res => {
+      if (res.success) {
+        message.success('导入成功！');
+        this.findByPage();
       }
     });
-  }
+  };
+
+  downloadTemplate = (type) => {
+    this.dispatchAction({
+      type: 'strategyAnalyzeBill/downloadTemplate',
+      payload: {
+        type: type
+      }
+    });
+  };
+
 
   handleEvent = (type, row) => {
     switch (type) {
-      case 'relevancy':
+      case 'add':
+      case 'edit':
         this.dispatchAction({
           type: 'strategyAnalyzeBill/updateState',
           payload: {
@@ -88,6 +100,60 @@ class StrategyAnalyzeBill extends Component {
           },
         });
         break;
+      case 'del':
+        this.setState(
+          {
+            delId: row.id,
+          },
+          () => {
+            this.dispatchAction({
+              type: 'strategyAnalyzeBill/del',
+              payload: {
+                id: row.id,
+              },
+            }).then(res => {
+              if (res.success) {
+                this.setState(
+                  {
+                    delId: null,
+                  },
+                  () => this.findByPage(),
+                );
+              }
+            });
+          },
+        );
+        break;
+        case 'export':
+          const filters = this.getTableFilters();
+          request.post(`${PROJECT_PATH}/strategyAnalyzeBill/export`, {filters}).then(res => {
+            if (res.success && res.data.length > 0) {
+              exportXlsx(
+                '经营策略',
+                [
+                  'id',
+                  '年份',
+                  '经营策略项目',
+                  '模块Code',
+                  '所属模块',
+                  '员工',
+                  '项目负责人',
+                  '职位',
+                  '工号',
+                  '模块对接人',
+                  '工号',
+                  '经营策略管理组成员',
+                  '新建日期',
+                  '单号',
+                  '状态',
+                  '更新日期',
+                ],
+                res.data);
+            }else{
+              message.error(res.message);
+            }
+          });
+          break;
       default:
         break;
     }
@@ -194,6 +260,42 @@ class StrategyAnalyzeBill extends Component {
         align: 'center',
         render: (_, __, index) => index + 1,
       },
+      // {
+      //   title: '操作',
+      //   key: 'operation',
+      //   width: 100,
+      //   align: 'center',
+      //   dataIndex: 'id',
+      //   className: 'action',
+      //   required: true,
+      //   render: (_, record) => (
+      //     <Space>
+      //       <ExtIcon
+      //         key="edit"
+      //         className="edit"
+      //         onClick={() => this.handleEvent('edit', record)}
+      //         type="edit"
+      //         status="success"
+      //         tooltip={{ title: '编辑' }}
+      //         antd
+      //       />
+      //       <Popconfirm
+      //         key="del"
+      //         placement="topLeft"
+      //         title="确定要删除吗？"
+      //         onConfirm={() => this.handleEvent('del', record)}
+      //       >
+      //         {this.renderDelBtn(record)}
+      //       </Popconfirm>
+      //     </Space>
+      //   ),
+      // },
+      {
+        title: '年份',
+        dataIndex: 'year',
+        width: 120,
+        required: true,
+      },
       {
         title: '经营策略项目',
         dataIndex: 'strategyName',
@@ -225,100 +327,35 @@ class StrategyAnalyzeBill extends Component {
         required: true,
       },
       {
-        title: '关联项目名称',
-        dataIndex: 'project',
+        title: '工号',
+        dataIndex: 'userCode1',
         width: 120,
         required: true,
       },
       {
-        title: '提交人',
-        dataIndex: 'creatorName',
+        title: '模块对接人',
+        dataIndex: 'userName1',
         width: 120,
         required: true,
       },
       {
-        title: '当前阶段',
-        dataIndex: 'stage',
+        title: '工号',
+        dataIndex: 'userCode2',
         width: 120,
         required: true,
-        render:(_, record) => {
-          for(let i of this.state.stateList){
-            if(i.dataValue === record.stage){     
-              return i.dataName
-            }
-          }}
       },
       {
-        title: '操作',
-        key: 'operation',
-        width: 300,
-        align: 'center',
-        dataIndex: 'id',
-        className: 'action',
+        title: '经营策略管理组成员',
+        dataIndex: 'userName2',
+        width: 180,
         required: true,
-        render: (_, record) => {
-          if(record.stage === 'relevancy'){
-            return (
-              <Space>
-                <div style={{color:'#1890ff',cursor:'pointer'}} 
-                     onClick={() => this.handleEvent('relevancy',record)}>关联项目
-                </div>
-                <div style={{color:'#666'}}>提交项目
-                </div>
-                <div style={{color:'#666'}}>项目确认
-                </div>
-                <div style={{color:'#666'}}>变更申请
-                </div>
-              </Space>
-            )
-          }
-          if(record.stage === 'subimit'){
-            return (
-              <Space>
-                <div style={{color:'#666'}}>关联项目
-                </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('subimit',record)}>提交项目
-                </div>
-                <div style={{color:'#666'}}>项目确认
-                </div>
-                <div style={{color:'#666'}}>变更申请
-                </div>
-              </Space>
-            )
-          }
-          if(record.stage === 'affirm'){
-            return (
-              <Space>
-                <div style={{color:'#666'}}>关联项目
-                </div>
-                <div style={{color:'#666'}}>提交项目
-                </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('affirm',record)}>项目确认
-                </div>
-                <div style={{color:'#666'}}>变更申请
-                </div>
-              </Space>
-            )
-          }
-          if(record.stage === 'change'){
-            return (
-              <Space>
-                <div style={{color:'#666'}}>关联项目
-                </div>
-                <div style={{color:'#666'}}>提交项目
-                </div>
-                <div style={{color:'#666'}}>项目确认
-                </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('change',record)}>变更申请
-                </div>
-              </Space>
-            )
-          }
-        }
-        },
+      },
+      {
+        title: '新建日期',
+        dataIndex: 'createdDate',
+        width: 180,
+        required: true,
+      },
       {
         title: '单号',
         dataIndex: 'code',
@@ -326,13 +363,29 @@ class StrategyAnalyzeBill extends Component {
         required: true,
       },
       {
-        title: '变更次数',
-        dataIndex: 'changeCount',
-        width: 80,
+        title: '状态',
+        dataIndex: 'state',
+        width: 120,
+        required: true,
+        render: text => {
+          if (text === '0') {
+            return '关闭';
+          }
+          if (text === '1') {
+            return '开立';
+          }
+          return '';
+        }
+      },
+      {
+        title: '更新日期',
+        dataIndex: 'lastEditedDate',
+        width: 180,
         required: true,
       },
     ];
     const toolBarProps = {
+      layout: {leftSpan: 22, rightSpan: 2},
       left: (
         <Space>
           所属模块：{' '}
@@ -367,15 +420,32 @@ class StrategyAnalyzeBill extends Component {
           />
           <Button type='primary' onClick={this.findByPage}>查找</Button>
           <Button
+            key="add"
+            type="primary"
+            onClick={() => {
+              this.handleEvent('add', null);
+            }}
+            ignore="true"
+          >
+            新建
+          </Button>
+          <Button
             key="export"
             type="primary"
             onClick={() => {
-              this.handlerExport();
+              this.handleEvent('export', null);
             }}
             ignore="true"
           >
             导出
           </Button>
+          <Button onClick={() => this.downloadTemplate('可用的入参')}>模板</Button>
+          <DataImport
+            tableProps={{ columns, showSearch: false }}
+            validateFunc={this.validateItem}
+            validatedAll={true}
+            importFunc={this.uploadStrategyAnalyzeBill}          
+          />
         </Space>
       ),
     };
@@ -419,4 +489,4 @@ class StrategyAnalyzeBill extends Component {
   }
 }
 
-export default StrategyAnalyzeBill;
+export default StrategyBills;

@@ -1,9 +1,6 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Row, Col } from 'antd';
-import { ExtModal, ComboList } from 'suid';
-import { constants } from '@/utils';
-const { PROJECT_PATH } = constants;
-const { ComboMultiList } = ComboList;
+import { Form, Input, Select } from 'antd';
+import { ComboList, ExtModal,YearPicker } from 'suid';
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -32,34 +29,9 @@ class FormModal extends PureComponent {
   };
 
   render() {
-    const { form, editData, onClose, saving, visible } = this.props;
+    const { form, editData, onClose, saving, visible,  moduleList } = this.props;
     const { getFieldDecorator } = form;
-    const title = '关联项目';
-
-    const followProps = {
-      placeholder: '请选择经营策略',
-      form,
-      width: 600,
-      name: 'strategyCode',
-      field: ['strategyCode'],
-      store: {
-        type: 'post',
-        url: `${PROJECT_PATH}/strategyAnalyzeBill/findByPage`,
-      },
-      searchPlaceHolder: '请选择经营策略',
-      ListProps:'vertical',
-      allowClear: true,
-      remotePaging: true,
-      rowKey: 'id',
-      showSearch: true,
-      pagination: true,
-      searchProperties: ['code', 'strategyName'],
-      reader: {
-        name: 'code',
-        description: 'strategyName',
-        field: ['code'],
-      },
-    };
+    const title = editData ? '编辑' : '新增';
 
     return (
       <ExtModal
@@ -70,117 +42,75 @@ class FormModal extends PureComponent {
         confirmLoading={saving}
         maskClosable={false}
         title={title}
-        width={1200}
         onOk={this.handleSave}
       >
         <Form {...formItemLayout} layout="horizontal">
-          <Row gutter={24} justify="space-around">
-            <Col span={8}>
-              <FormItem label="单 号">
-                {getFieldDecorator('code', {
-                  initialValue: editData && editData.code,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-            <FormItem label="所属单位：">
-                {getFieldDecorator('projectCode', {
-                  initialValue: editData && editData.projectCode,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={24} justify="space-around">
-            <Col span={8}>
-              <FormItem label="工   号">
-                {getFieldDecorator('jobNumber', {
-                  initialValue: editData && editData.jobNumber,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-            <Col span={8}>
-              <FormItem label="责任人">
-                {getFieldDecorator('userName', {
-                  initialValue: editData && editData.userName,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-            <Col span={8}>
-              <FormItem label="职   位">
-                {getFieldDecorator('position', {
-                  initialValue: editData && editData.position,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={24} justify="space-around">
-            <Col span={8}>
-              <FormItem label="工   号">
-                {getFieldDecorator('creatorAccount', {
-                  initialValue: editData && editData.creatorAccount,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-            <Col span={8}>
-              <FormItem label="提单人">
-                {getFieldDecorator('creatorName', {
-                  initialValue: editData && editData.creatorName,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-            <Col span={8}>
-              <FormItem label="职   位">
-                {getFieldDecorator('creatorPosition', {
-                  initialValue: editData && editData.creatorPosition,
-                })(<Input readOnly />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={24} justify="space-around">
-            <Col span={24}>
-              <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label="经营策略项目">
-                {getFieldDecorator('strategyCode', {
-                  initialValue: editData && editData.strategyCode,
-                  rules: [
-                    {
-                      required: true,
-                      message: '经营策略不能为空',
-                    },
-                  ],
-                })(<ComboMultiList {...followProps}/>)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={24}>
-            <Col span={24}>
-              <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label='描  述' >
-                {getFieldDecorator('description', {
-                  initialValue: editData && editData.description,
-                  rules: [
-                    {
-                      required: true,
-                      message: '问题描述不能为空',
-                    },
-                  ],
-                })(<Input.TextArea />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row gutter={24} justify="space-around">
-            <Col span={24}>
-              <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label="关联项目名称：">
-                {getFieldDecorator('description', {
-                  initialValue: editData && editData.description,
-                  rules: [
-                    {
-                      required: true,
-                      message: '问题描述不能为空',
-                    },
-                  ],
-                })(<Input.TextArea  />)}
-              </FormItem>
-            </Col>
-          </Row>
+          <FormItem label="经营策略项目">
+            {getFieldDecorator('strategyName', {
+              initialValue: editData && editData.strategyName,
+              rules: [
+                {
+                  required: true,
+                  message: '经营策略项目不能为空',
+                },
+              ],
+            })(<Input disabled={!!editData || saving} />)}
+          </FormItem>
+          <FormItem label="年份">
+            {getFieldDecorator('year', {
+              initialValue: editData && editData.year,
+              rules: [
+                {
+                  required: true,
+                  message: '年份不能为空',
+                },
+              ],
+            })(<YearPicker allowClear format="YYYY年" onChange={console.log} />)}
+          </FormItem>
+          <FormItem label="模块Code" style={{display:'none'}}
+          >
+            {
+            getFieldDecorator('moduleCode', {
+              initialValue: editData && editData.moduleCode,
+            })(<Input readOnly />)}
+          </FormItem>
+          <FormItem label="模  块">
+            {getFieldDecorator('module', {
+              initialValue: editData && editData.module,
+              rules: [
+                {
+                  required: true,
+                  message: '模块不能为空',
+                },
+              ],
+            })(<ComboList
+                showSearch={false}
+                pagination={false}
+                dataSource={moduleList}
+                disabled={saving}
+                afterSelect={(item)=>{
+                  form.setFieldsValue({
+                    moduleCode:item.code,
+                    module:item.module,
+                  })
+                }}
+                reader={{
+                  name: 'module',
+                  field: ['module'],
+                }}
+              />
+            )}
+          </FormItem>
+          <FormItem label="是否开立">
+            {getFieldDecorator('state', {
+              initialValue: editData && editData.state===1?'1':'0',
+            })(
+              <Select disabled={editData}>
+                <Select.Option value="1">开立</Select.Option>
+                <Select.Option value="0">关闭</Select.Option>
+              </Select>
+            )}
+          </FormItem>
         </Form>
       </ExtModal>
     );
