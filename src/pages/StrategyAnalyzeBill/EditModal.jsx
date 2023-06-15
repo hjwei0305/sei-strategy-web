@@ -101,6 +101,12 @@ class FormModal extends PureComponent {
               />
             )}
           </FormItem>
+          <FormItem label="阶段" style={{display:'none'}}> 
+            {
+            getFieldDecorator('stage', {
+              initialValue: 'relevancy',
+            })(<Input readOnly />)}
+          </FormItem>
           <FormItem label="是否开立">
             {getFieldDecorator('state', {
               initialValue: editData && editData.state===1?'1':'0',

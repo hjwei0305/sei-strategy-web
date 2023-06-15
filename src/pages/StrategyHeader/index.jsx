@@ -135,6 +135,14 @@ class StrategyHeader extends Component {
     });
   };
 
+  addProject = data => {
+    data.strategyAnalyzeBillDto.projectDtoList.push({
+      name: '',
+      index: data.strategyAnalyzeBillDto.projectDtoList.length.length+1,
+    });
+    this.forceUpdate();
+  };
+
   handleClose = () => {
     this.dispatchAction({
       type: 'strategyHeader/updateState',
@@ -196,13 +204,6 @@ class StrategyHeader extends Component {
   getExtableProps = () => {
     const columns = [
       {
-        title: '序号',
-        dataIndex: 'index',
-        width: 60,
-        align: 'center',
-        render: (_, __, index) => index + 1,
-      },
-      {
         title: '经营策略项目',
         dataIndex: 'strategyAnalyzeBillDto.strategyName',
         width: 360,
@@ -234,7 +235,7 @@ class StrategyHeader extends Component {
       },
       {
         title: '关联项目名称',
-        dataIndex: 'strategyAnalyzeBillDto.strategyProjectDto.name',
+        dataIndex: 'strategyProjectDto.name',
         width: 120,
         required: true,
       },
@@ -408,6 +409,7 @@ class StrategyHeader extends Component {
     return {
       onSave: this.handleSave,
       editData,
+      addProject: this.addProject,
       visible: modalVisible,
       onClose: this.handleClose,
       saving: loading.effects['strategyHeader/save'],
