@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import { Button, Input, message } from 'antd';
 import { ExtTable, Space } from 'suid';
 import EditModal from './EditModal';
+import ProjectModal from './ProjectModal';
 import { request } from 'suid/lib/utils';
 import { exportXlsx, constants } from '@/utils';
 import { getCurrentUser } from '@/utils/user';
@@ -109,6 +110,15 @@ class StrategyHeader extends Component {
           type: 'strategyHeader/updateState',
           payload: {
             modalVisible: true,
+            editData: row,
+          },
+        });
+        break;
+      case 'submit':
+        this.dispatchAction({
+          type: 'strategyHeader/updateState',
+          payload: {
+            projectModalVisible: true,
             editData: row,
           },
         });
@@ -281,13 +291,13 @@ class StrategyHeader extends Component {
               </Space>
             )
           }
-          if(record.strategyAnalyzeBillDto.stage === 'subimit'){
+          if(record.strategyAnalyzeBillDto.stage === 'submit'){
             return (
               <Space>
                 <div style={{color:'#666'}}>关联项目
                 </div>
                 <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('subimit',record)}>提交项目
+                      onClick={() => this.handleEvent('submit',record)}>提交项目
                 </div>
                 <div style={{color:'#666'}}>项目确认
                 </div>
@@ -417,14 +427,29 @@ class StrategyHeader extends Component {
     };
   };
 
+  getProjectModalProps = () => {
+    const { loading, strategyHeader } = this.props;
+    const { projectModalVisible, editData } = strategyHeader;
+
+    return {
+      onSave: this.handleSave,
+      editData,
+      visible: projectModalVisible,
+      onClose: this.handleClose,
+      saving: loading.effects['strategyHeader/save'],
+      user: this.state.user,
+    };
+  };
+
   render() {
     const { strategyHeader } = this.props;
-    const { modalVisible } = strategyHeader;
+    const { modalVisible,projectModalVisible } = strategyHeader;
 
     return (
       <>
         <ExtTable onTableRef={inst => (this.tableRef = inst)} {...this.getExtableProps()} />
         {modalVisible ? <EditModal {...this.getEditModalProps()} /> : null}
+        {projectModalVisible ? <ProjectModal {...this.getProjectModalProps()} /> : null}
       </>
     );
   }
