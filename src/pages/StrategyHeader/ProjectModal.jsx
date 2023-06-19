@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 // import { connect } from 'dva';
-import { Input, Col, Row, Divider, Select, Radio, Steps } from 'antd';
+import { Input, Col, Row, Select, Radio, Steps, Button } from 'antd';
 import { ExtModal } from 'suid';
 // import { constants, exportXlsx } from '@/utils';
 import 'antd/dist/antd.css';
@@ -37,6 +37,9 @@ class ProjectModal extends PureComponent {
       console.log();
     };
     // const description = 'This is a description.';
+    const {Step} = Steps;
+    const StepTitle = '王小明';
+    const StepTitle2 = '待审核';
 
     return (
       <ExtModal
@@ -53,7 +56,10 @@ class ProjectModal extends PureComponent {
       >
         <div className={style.XXX}>
           <div>
-            <Divider orientation="left">项目基础信息</Divider>
+            <div className={style.titleBox}>
+              <span className={style.titleBlue}> </span>
+              <span className={style.titleText}>项目基础信息</span>
+            </div>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>项目名称</Col>
               <Col span={3}>系统自动带出</Col>
@@ -152,7 +158,10 @@ class ProjectModal extends PureComponent {
           </div>
 
           <div>
-            <Divider orientation="left">资料初审</Divider>
+            <div className={style.titleBox}>
+              <span className={style.titleBlue}> </span>
+              <div className={style.titleText}>资料初审</div>
+            </div>
             <div style={{ display: 'inline-block', width: '35%' }}>
               <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                 <Col span={12}>项目名称</Col>
@@ -161,7 +170,7 @@ class ProjectModal extends PureComponent {
               <Row
                 align="middle"
                 gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
-                style={{ height: `${x  }px` }}
+                style={{ height: `${x}px` }}
               >
                 <Col span={12}>*是否需要会签</Col>
                 <Col span={12}>
@@ -195,45 +204,47 @@ class ProjectModal extends PureComponent {
           </div>
 
           <div>
-            <Divider orientation="left">审核、审批</Divider>
-            <Steps
-              current={1}
-              items={[
-                {
-                  title: 'Finished',
-                },
-                {
-                  title: 'In Progress',
-                  subTitle: 'Left 00:00:08',
-                },
-                {
-                  title: 'Waiting',
-                },
-              ]}
-            />
+            <div className={style.titleBox}>
+              <span className={style.titleBlue}> </span>
+              <div className={style.titleText}>审核、审批</div>
+            </div>
+
+            <Steps direction="vertical" current={1} className={style.stepsClass}>
+              <Step title={`${StepTitle  }  ${  StepTitle2}`} subTitle="2023-03-29" />
+              <Step
+                title={`${StepTitle  }  ${  StepTitle2}`}
+                description="审批意见：XXXXXXXXXX"
+                subTitle="2023-03-29"
+              />
+              <Step
+                title={`${StepTitle  }  ${  StepTitle2}`}
+                description="审批意见：XXXXXXXXXX"
+                subTitle="2023-03-29"
+              />
+              <Step
+                title={`${StepTitle  }  ${  StepTitle2}`}
+                description="审批意见：XXXXXXXXXX"
+                subTitle="2023-03-29"
+              />
+            </Steps>
           </div>
         </div>
 
-        {/* <Form>
-                    <FormItem label="项目描述">
-                      <Input.TextArea placeholder="请输入项目描述" />
-                    </FormItem>
-                    <FormItem label="项目列表">
-                        <ExtTable
-                            rowKey="id"
-                            columns={columns}
-
-                            pagination={false}
-                        />
-                        <Button type="primary" onClick={this.handAdd}>
-                            新增
-                        </Button>
-                        <Popconfirm title="是否清空项目列表？" onConfirm={this.clearProjects}>
-                            <Button type="danger">清空</Button>
-                        </Popconfirm>
-                    </FormItem>
-
-                </Form> */}
+        <div style={{ textAlign: 'center' }}>
+          <Button type="primary" ghost size="large" style={{ margin: '0 5rem' }}>
+            保存
+          </Button>
+          <Button
+            type="primary"
+            size="large"
+            style={{ margin: '0 5rem', background: 'red', border: '1px solid red' }}
+          >
+            退回
+          </Button>
+          <Button type="primary" size="large" style={{ margin: '0 5rem' }}>
+            提交
+          </Button>
+        </div>
       </ExtModal>
     );
   }
