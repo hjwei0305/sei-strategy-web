@@ -210,7 +210,7 @@ class ProjectModal extends PureComponent {
                   title: 'Waiting',
                 },
               ]}
-             />
+            />
           </div>
         </div>
 
@@ -222,7 +222,7 @@ class ProjectModal extends PureComponent {
                         <ExtTable
                             rowKey="id"
                             columns={columns}
-                           
+
                             pagination={false}
                         />
                         <Button type="primary" onClick={this.handAdd}>

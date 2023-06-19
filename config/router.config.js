@@ -59,16 +59,16 @@ export default [
             component: "./StrategyAnalyzeBill",
             title:  "经营策略管理",
           },
-          // {
-          //   path: "/strategy/StrategyAnalyzeBill",
-          //   component: "./StrategyAnalyzeBill",
-          //   title:  "经营策略分析落地",
-          // },
           {
             path: "/strategy/StrategyHeader",
             component: "./StrategyHeader",
-            title:  "经营策略分析落地2",
+            title:  "经营策略分析落地",
           },
+          {
+            path: "/strategy/StrategyProjectChange",
+            component: "./StrategyProjectChange",
+            title:  "变更管理",
+          }
         ]
       }
     ],
