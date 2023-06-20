@@ -168,8 +168,8 @@ class ProChange extends PureComponent {
                 <Col span={4}>日期</Col>
                 <Col span={8}>系统自动带出</Col>
               </Row>
-              {items.map(item => (
-                <Row key={item} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+              {items.map((item,index) => (
+                <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                   <Col span={4}>工号</Col>
                   <Col span={4} >{item}</Col>
                   <Col span={4}>会签人员</Col>
