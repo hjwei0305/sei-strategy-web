@@ -8,7 +8,11 @@ import ProjectModal from './ProjectModal';
 import { request } from 'suid/lib/utils';
 import { exportXlsx, constants } from '@/utils';
 import { getCurrentUser } from '@/utils/user';
-const { PROJECT_PATH,SERVER_PATH } = constants;
+import ProChange from '../StrategyHeader/ProChange/index';
+import ProConfirmation from '../StrategyHeader/ProConfirmation/index';
+import ProSubmission from '../StrategyHeader/ProSubmission/index';
+
+const { PROJECT_PATH, SERVER_PATH } = constants;
 
 @withRouter
 @connect(({ strategyHeader, loading }) => ({ strategyHeader, loading }))
@@ -19,7 +23,7 @@ class StrategyHeader extends Component {
     moduleFilter: null,
     userNameFilter: null,
     stateFilter: null,
-    moduleList:[],
+    moduleList: [],
     stateList: [],
     user: null,
   };
@@ -37,7 +41,7 @@ class StrategyHeader extends Component {
     const code = getCurrentUser().account;
     dispatch({
       type: 'strategyHeader/findByCode',
-      payload: {code},
+      payload: { code },
     }).then(res => {
       this.setState({
         user: res.data,
@@ -74,7 +78,7 @@ class StrategyHeader extends Component {
 
   handlerExport = () => {
     const filters = this.getTableFilters();
-    request.post(`${PROJECT_PATH}/strategyHeader/export`, {filters}).then(res => {
+    request.post(`${PROJECT_PATH}/strategyHeader/export`, { filters }).then(res => {
       if (res.success && res.data.length > 0) {
         exportXlsx(
           '经营策略',
@@ -97,7 +101,7 @@ class StrategyHeader extends Component {
             '更新日期',
           ],
           res.data);
-      }else{
+      } else {
         message.error(res.message);
       }
     });
@@ -118,7 +122,27 @@ class StrategyHeader extends Component {
         this.dispatchAction({
           type: 'strategyHeader/updateState',
           payload: {
-            projectModalVisible: true,
+            proSubmissionVisible: true,
+            editData: row,
+          },
+        });
+        break;
+      // 项目确认
+      case 'affirm':
+        this.dispatchAction({
+          type: 'strategyHeader/updateState',
+          payload: {
+            proConfirmationVisible: true,
+            editData: row,
+          },
+        });
+        break;
+      // 项目变更表
+      case 'change':
+        this.dispatchAction({
+          type: 'strategyHeader/updateState',
+          payload: {
+            proChangeVisible: true,
             editData: row,
           },
         });
@@ -148,7 +172,7 @@ class StrategyHeader extends Component {
   addProject = data => {
     data.strategyAnalyzeBillDto.projectDtoList.push({
       name: '',
-      index: data.strategyAnalyzeBillDto.projectDtoList.length.length+1,
+      index: data.strategyAnalyzeBillDto.projectDtoList.length.length + 1,
     });
     this.forceUpdate();
   };
@@ -163,6 +187,38 @@ class StrategyHeader extends Component {
     });
   };
 
+// 提交项目
+handleProSubmissionClose = () => {
+  this.dispatchAction({
+    type: 'strategyHeader/updateState',
+    payload: {
+      proSubmissionVisible: false,
+      editData: null,
+    },
+  });
+};
+
+  // 项目确认表
+  handleProConfirmationClose = () => {
+    this.dispatchAction({
+      type: 'strategyHeader/updateState',
+      payload: {
+        proConfirmationVisible: false,
+        editData: null,
+      },
+    });
+  };
+  // 项目变更表
+  handleProChangeClose = () => {
+    this.dispatchAction({
+      type: 'strategyHeader/updateState',
+      payload: {
+        proChangeVisible: false,
+        editData: null,
+      },
+    });
+  };
+
   getTableFilters = () => {
     const filters = [];
     if (this.state.moduleFilter) {
@@ -170,7 +226,7 @@ class StrategyHeader extends Component {
         fieldName: 'module',
         operator: 'LK',
         fieldType: 'String',
-        value:this.state.moduleFilter,
+        value: this.state.moduleFilter,
       });
     }
     if (this.state.userNameFilter) {
@@ -178,7 +234,7 @@ class StrategyHeader extends Component {
         fieldName: 'userName',
         operator: 'LK',
         fieldType: 'String',
-        value:this.state.userNameFilter,
+        value: this.state.userNameFilter,
       });
     }
     if (this.state.stateFilter) {
@@ -186,7 +242,7 @@ class StrategyHeader extends Component {
         fieldName: 'state',
         operator: 'LK',
         fieldType: 'String',
-        value:this.state.stateFilter,
+        value: this.state.stateFilter,
       });
     }
     return filters;
@@ -210,7 +266,7 @@ class StrategyHeader extends Component {
     });
   };
 
-  
+
   getExtableProps = () => {
     const columns = [
       {
@@ -260,12 +316,13 @@ class StrategyHeader extends Component {
         dataIndex: 'strategyAnalyzeBillDto.stage',
         width: 120,
         required: true,
-        render:(_, record) => {
-          for(let i of this.state.stateList){
-            if(i.dataValue === record.strategyAnalyzeBillDto.stage){     
+        render: (_, record) => {
+          for (let i of this.state.stateList) {
+            if (i.dataValue === record.strategyAnalyzeBillDto.stage) {
               return i.dataName
             }
-          }}
+          }
+        }
       },
       {
         title: '操作',
@@ -276,68 +333,68 @@ class StrategyHeader extends Component {
         className: 'action',
         required: true,
         render: (_, record) => {
-          if(record.strategyAnalyzeBillDto.stage === 'relevancy'){
+          if (record.strategyAnalyzeBillDto.stage === 'relevancy') {
             return (
               <Space>
-                <div style={{color:'#1890ff',cursor:'pointer'}} 
-                     onClick={() => this.handleEvent('relevancy',record)}>关联项目
+                <div style={{ color: '#1890ff', cursor: 'pointer' }}
+                  onClick={() => this.handleEvent('relevancy', record)}>关联项目
                 </div>
-                <div style={{color:'#666'}}>提交项目
+                <div style={{ color: '#666' }}>提交项目
                 </div>
-                <div style={{color:'#666'}}>项目确认
+                <div style={{ color: '#666' }}>项目确认
                 </div>
-                <div style={{color:'#666'}}>变更申请
+                <div style={{ color: '#666' }}>变更申请
                 </div>
               </Space>
             )
           }
-          if(record.strategyAnalyzeBillDto.stage === 'submit'){
+          if (record.strategyAnalyzeBillDto.stage === 'submit') {
             return (
               <Space>
-                <div style={{color:'#666'}}>关联项目
+                <div style={{ color: '#666' }}>关联项目
                 </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('submit',record)}>提交项目
+                <div style={{ color: '#1890ff', cursor: 'pointer' }}
+                  onClick={() => this.handleEvent('submit', record)}>提交项目
                 </div>
-                <div style={{color:'#666'}}>项目确认
+                <div style={{ color: '#666' }}>项目确认
                 </div>
-                <div style={{color:'#666'}}>变更申请
+                <div style={{ color: '#666' }}>变更申请
                 </div>
               </Space>
             )
           }
-          if(record.strategyAnalyzeBillDto.stage === 'affirm'){
+          if (record.strategyAnalyzeBillDto.stage === 'affirm') {
             return (
               <Space>
-                <div style={{color:'#666'}}>关联项目
+                <div style={{ color: '#666' }}>关联项目
                 </div>
-                <div style={{color:'#666'}}>提交项目
+                <div style={{ color: '#666' }}>提交项目
                 </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('affirm',record)}>项目确认
+                <div style={{ color: '#1890ff', cursor: 'pointer' }}
+                  onClick={() => this.handleEvent('affirm', record)}>项目确认
                 </div>
-                <div style={{color:'#666'}}>变更申请
+                <div style={{ color: '#666' }}>变更申请
                 </div>
               </Space>
             )
           }
-          if(record.strategyAnalyzeBillDto.stage === 'change'){
+          if (record.strategyAnalyzeBillDto.stage === 'change') {
             return (
               <Space>
-                <div style={{color:'#666'}}>关联项目
+                <div style={{ color: '#666' }}>关联项目
                 </div>
-                <div style={{color:'#666'}}>提交项目
+                <div style={{ color: '#666' }}>提交项目
                 </div>
-                <div style={{color:'#666'}}>项目确认
+                <div style={{ color: '#666' }}>项目确认
                 </div>
-                <div style={{color:'#1890ff',cursor:'pointer'}}
-                      onClick={() => this.handleEvent('change',record)}>变更申请
+                <div style={{ color: '#1890ff', cursor: 'pointer' }}
+                  onClick={() => this.handleEvent('change', record)}>变更申请
                 </div>
               </Space>
             )
           }
         }
-        },
+      },
       {
         title: '单号',
         dataIndex: 'strategyAnalyzeBillDto.code',
@@ -441,15 +498,61 @@ class StrategyHeader extends Component {
     };
   };
 
+  // 提交项目
+  getProSubmissionProps = () => {
+    const { loading, strategyHeader } = this.props;
+    const { proSubmissionVisible, editData } = strategyHeader;
+
+    return {
+      onSave: this.handleSave,
+      editData,
+      visible: proSubmissionVisible,
+      onClose: this.handleProSubmissionClose,
+      saving: loading.effects['strategyHeader/save'],
+      user: this.state.user,
+    };
+  };
+  // 项目确认表
+  getProConfirmationProps = () => {
+    const { loading, strategyHeader } = this.props;
+    const { proConfirmationVisible, editData } = strategyHeader;
+
+    return {
+      onSave: this.handleSave,
+      editData,
+      visible: proConfirmationVisible,
+      onClose: this.handleProConfirmationClose,
+      saving: loading.effects['strategyHeader/save'],
+      user: this.state.user,
+    };
+  };
+  // 项目变更表
+  getProChangeProps = () => {
+    const { loading, strategyHeader } = this.props;
+    const { proChangeVisible, editData } = strategyHeader;
+
+    return {
+      onSave: this.handleSave,
+      editData,
+      visible: proChangeVisible,
+      onClose: this.handleProChangeClose,
+      saving: loading.effects['strategyHeader/save'],
+      user: this.state.user,
+    };
+  };
+
   render() {
     const { strategyHeader } = this.props;
-    const { modalVisible,projectModalVisible } = strategyHeader;
+    const { modalVisible, projectModalVisible, proChangeVisible, proConfirmationVisible,proSubmissionVisible } = strategyHeader;
 
     return (
       <>
         <ExtTable onTableRef={inst => (this.tableRef = inst)} {...this.getExtableProps()} />
         {modalVisible ? <EditModal {...this.getEditModalProps()} /> : null}
         {projectModalVisible ? <ProjectModal {...this.getProjectModalProps()} /> : null}
+        {proChangeVisible ? <ProChange {...this.getProChangeProps()} /> : null}
+        {proConfirmationVisible ? <ProConfirmation {...this.getProConfirmationProps()} /> : null}
+        {proSubmissionVisible ? <ProSubmission {...this.getProSubmissionProps()} /> : null}
       </>
     );
   }

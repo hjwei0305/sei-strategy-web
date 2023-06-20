@@ -1,43 +1,23 @@
 import React, { PureComponent } from 'react';
-// import { connect } from 'dva';
+import { withRouter } from 'umi';
+import { connect } from 'dva';
 import { Input, Col, Row, Select, Radio, Steps, Button } from 'antd';
 import { ExtModal } from 'suid';
-// import { constants, exportXlsx } from '@/utils';
-import 'antd/dist/antd.css';
-import style from './ProjectModal.less';
 
-// @Form.create()
-class ProjectModal extends PureComponent {
-  // handleSelect = (value) => {
-  // console.log(`selected ${value}`);
+import style from './index.less';
 
-  // }
+@withRouter
+@connect(({ proChange, loading }) => ({ proChange, loading }))
+class ProChange extends PureComponent {
+
 
   render() {
     const { visible, onClose } = this.props;
-    // const { getFieldDecorator } = form;
-
-    // const data = [
-    //     {
-    //         title: '项目名称',
-    //     },
-    //     {
-    //         title: '经营策略管理组',
-    //     },
-    //     {
-    //         title: '日期',
-    //     },
-
-    // ];
 
     const items = ['380889', '456355', '551225'];
     const x = items.length * 50;
-
-    const onChange = () => {
-    
-    };
-    // const description = 'This is a description.';
-    const {Step} = Steps;
+    const onChange = () => { };
+    const { Step } = Steps;
     const StepTitle = '王小明';
     const StepTitle2 = '待审核';
 
@@ -208,19 +188,19 @@ class ProjectModal extends PureComponent {
             </div>
 
             <Steps direction="vertical" current={1} className={style.stepsClass}>
-              <Step title={`${StepTitle  }  ${  StepTitle2}`} subTitle="2023-03-29" />
+              <Step title={`${StepTitle}  ${StepTitle2}`} subTitle="2023-03-29" />
               <Step
-                title={`${StepTitle  }  ${  StepTitle2}`}
+                title={`${StepTitle}  ${StepTitle2}`}
                 description="审批意见：XXXXXXXXXX"
                 subTitle="2023-03-29"
               />
               <Step
-                title={`${StepTitle  }  ${  StepTitle2}`}
+                title={`${StepTitle}  ${StepTitle2}`}
                 description="审批意见：XXXXXXXXXX"
                 subTitle="2023-03-29"
               />
               <Step
-                title={`${StepTitle  }  ${  StepTitle2}`}
+                title={`${StepTitle}  ${StepTitle2}`}
                 description="审批意见：XXXXXXXXXX"
                 subTitle="2023-03-29"
               />
@@ -248,4 +228,4 @@ class ProjectModal extends PureComponent {
   }
 }
 
-export default ProjectModal;
+export default ProChange;
