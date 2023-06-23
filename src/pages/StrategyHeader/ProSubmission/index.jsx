@@ -2,16 +2,47 @@ import React, { PureComponent } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
 import { Input, Col, Row, Select, Radio, Steps, Button, Calendar, } from 'antd';
-import { ExtModal } from 'suid';
+import { ExtModal, ComboList } from 'suid';
 import style from './index.less';
+import { constants } from '@/utils';
+const { SERVER_PATH } = constants;
 
 @withRouter
 @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
 class ProSubmission extends PureComponent {
 
-
   render() {
-    const { visible, onClose } = this.props;
+    const { visible, onClose, editData, moduleList } = this.props;
+    console.log(editData);
+
+    const employeeProps = {
+      placeholder: '根据工号或者姓名搜索！',
+      width: 600,
+      allowClear: true,
+      remotePaging: true,
+      cascadeParams: {
+        includeFrozen: false,
+        includeSubNode: true,
+        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
+      },
+      showSearch: true,
+      pagination: true,
+      searchProperties: ['userName', 'code'],
+      searchPlaceHolder: '根据工号或者姓名搜索！',
+      // afterClear: () =>form.setFieldsValue({}),
+      // afterSelect: item => form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,userId:item.id,
+      //   userStatue:item.frozen===false?'在职':'离职',}),
+      store: {
+        type: 'post',
+        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
+      },
+      reader: {
+        name: 'userName',
+        description: 'organizationName',
+        field: ['id', 'code', 'userName'],
+      },
+    };
+
 
     const items = [{
       userCode: '380889',
@@ -34,9 +65,10 @@ class ProSubmission extends PureComponent {
     ];
     const Option = Select.Option;
 
-    const children = [];
-    for (let i = 10; i < 36; i++) {
-      children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
+    const moduleArray = [];
+
+    for (let i = 0; i < moduleList.length; i++) {
+      moduleArray.push(<Option key={moduleList[i].code}>{moduleList[i].module}</Option>);
     }
 
     function handleChange(value) {
@@ -44,13 +76,15 @@ class ProSubmission extends PureComponent {
     }
 
     const Data = new Date().toLocaleString();
+    
+    const year = new Date().getFullYear();
 
     return (
       <ExtModal
         destroyOnClose
         onCancel={onClose}
         visible={visible}
-        title="2023年度经营策略项目提报申请表(提交项目)"
+        title={year+"年度经营策略项目提报申请表(提交项目)"}
         centered
         maskClosable={false}
         fullScreen
@@ -68,7 +102,7 @@ class ProSubmission extends PureComponent {
               <Col span={3}>工号</Col>
               <Col span={3}>系统自动带出</Col>
               <Col span={3}>模块对接人</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>{(<ComboList {...employeeProps}/>)}</Col>
               <Col span={3}>部门</Col>
               <Col span={3}>系统自动带出</Col>
               <Col span={3}>人员状态</Col>
@@ -76,7 +110,7 @@ class ProSubmission extends PureComponent {
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3} style={{color:'#F56C6C'}}>*项目名称</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>{editData.strategyProjectDto.name}</Col>
               <Col span={3}>*工号</Col>
               <Col span={3}>系统自动带出</Col>
               <Col span={3}>*项目负责人</Col>
@@ -84,31 +118,32 @@ class ProSubmission extends PureComponent {
                 <Select
                   mode="multiple"
                   placeholder="必填且支持多选"
-                  defaultValue={['a10', 'c12']}
+                  defaultValue={['a10']}
                   onChange={handleChange}
                 >
-                  {children}
+                  {moduleArray}
                 </Select>
               </Col>
               <Col span={3}>*所属模块</Col>
               <Col span={3}>
-                <Select
-                  mode="multiple"
-                  placeholder="必填且支持多选"
-                  defaultValue={['a10', 'c12']}
-                  onChange={handleChange}
-                >
-                  {children}
-                </Select>
+                {editData.strategyAnalyzeBillDto.module}
               </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>*项目层级</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>{editData.strategyProjectDto.level}</Col>
               <Col span={3}>*项目类别</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>
+                <Select
+                  mode="multiple"
+                  placeholder="必填且支持多选"
+                  onChange={handleChange}
+                >
+                  {moduleArray}
+                </Select>
+              </Col>
               <Col span={3}>*项目编号</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>{editData.strategyProjectDto.code}</Col>
               <Col span={3}>提交日期</Col>
               <Col span={3}>{Data}</Col>
             </Row>
@@ -119,6 +154,7 @@ class ProSubmission extends PureComponent {
             >
               <Col span={3}>*此项目所匹配的经营策略</Col>
               <Col span={9}>
+                {editData.strategyAnalyzeBillDto.strategyName}
               </Col>
               <Col span={3}>*项目内容</Col>
               <Col span={9}>
@@ -155,7 +191,7 @@ class ProSubmission extends PureComponent {
               <Col span={3}>操作</Col>
             </Row>
             {items.map((item, index) => (
-              <Row key={item} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+              <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                 <Col span={2}>{index + 1}</Col>
                 <Col span={5}>{item.userCode}</Col>
                 <Col span={5}>{item.userName}</Col>
@@ -198,7 +234,7 @@ class ProSubmission extends PureComponent {
               <Col span={3}>*交付物是否设计财务数据</Col>
             </Row>
             {items.map((item, index) => (
-              <Row key={item} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+              <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                 <Col span={3}>{index + 1}</Col>
                 <Col span={3}>{item.userCode}</Col>
                 <Col span={3}>{item.userName}</Col>

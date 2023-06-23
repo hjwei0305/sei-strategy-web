@@ -4,7 +4,6 @@ import { connect } from 'dva';
 import { Button, Input, message } from 'antd';
 import { ExtTable, Space } from 'suid';
 import EditModal from './EditModal';
-import ProjectModal from './ProjectModal';
 import { request } from 'suid/lib/utils';
 import { exportXlsx, constants } from '@/utils';
 import { getCurrentUser } from '@/utils/user';
@@ -484,28 +483,15 @@ handleProSubmissionClose = () => {
     };
   };
 
-  getProjectModalProps = () => {
-    const { loading, strategyHeader } = this.props;
-    const { projectModalVisible, editData } = strategyHeader;
-
-    return {
-      onSave: this.handleSave,
-      editData,
-      visible: projectModalVisible,
-      onClose: this.handleClose,
-      saving: loading.effects['strategyHeader/save'],
-      user: this.state.user,
-    };
-  };
-
   // 提交项目
   getProSubmissionProps = () => {
     const { loading, strategyHeader } = this.props;
-    const { proSubmissionVisible, editData } = strategyHeader;
+    const { proSubmissionVisible, editData, moduleList } = strategyHeader;
 
     return {
       onSave: this.handleSave,
       editData,
+      moduleList: this.state.moduleList,
       visible: proSubmissionVisible,
       onClose: this.handleProSubmissionClose,
       saving: loading.effects['strategyHeader/save'],
@@ -543,13 +529,12 @@ handleProSubmissionClose = () => {
 
   render() {
     const { strategyHeader } = this.props;
-    const { modalVisible, projectModalVisible, proChangeVisible, proConfirmationVisible,proSubmissionVisible } = strategyHeader;
+    const { modalVisible, proChangeVisible, proConfirmationVisible,proSubmissionVisible } = strategyHeader;
 
     return (
       <>
         <ExtTable onTableRef={inst => (this.tableRef = inst)} {...this.getExtableProps()} />
         {modalVisible ? <EditModal {...this.getEditModalProps()} /> : null}
-        {projectModalVisible ? <ProjectModal {...this.getProjectModalProps()} /> : null}
         {proChangeVisible ? <ProChange {...this.getProChangeProps()} /> : null}
         {proConfirmationVisible ? <ProConfirmation {...this.getProConfirmationProps()} /> : null}
         {proSubmissionVisible ? <ProSubmission {...this.getProSubmissionProps()} /> : null}
