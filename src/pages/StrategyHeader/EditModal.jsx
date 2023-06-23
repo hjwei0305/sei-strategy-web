@@ -53,7 +53,7 @@ class FormModal extends PureComponent {
   };
 
   handAdd = () => {
-    const {  addProject, editData } = this.props;
+    const { addProject, editData } = this.props;
     addProject(editData);
   };
 
@@ -162,7 +162,7 @@ class FormModal extends PureComponent {
           </Row>
          {projectDtoList.map((i,index) => {
             return(
-              <Row gutter={24} justify="space-around">
+              <Row gutter={24} justify="space-around" key={index}>
                 <Col span={24}>
                   <FormItem labelCol={{span:3}} wrapperCol={{span:18}} label="关联项目名称" >
                     {getFieldDecorator('name'+index, {

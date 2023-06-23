@@ -9,7 +9,7 @@ import { exportXlsx, constants } from '@/utils';
 import { getCurrentUser } from '@/utils/user';
 import ProChange from '../StrategyHeader/ProChange/index';
 import ProConfirmation from '../StrategyHeader/ProConfirmation/index';
-import ProSubmission from '../StrategyHeader/ProSubmission/index';
+import ProSubmission from './ProSubmission/EditModal';
 
 const { PROJECT_PATH, SERVER_PATH } = constants;
 
@@ -22,17 +22,17 @@ class StrategyHeader extends Component {
     moduleFilter: null,
     userNameFilter: null,
     stateFilter: null,
-    moduleList: [],
     stateList: [],
     user: null,
+    projectStyle: [],
   };
 
   constructor(prop) {
     super(prop);
     this.findByPage();
-    this.initModuleList();
     this.initStateList();
     this.findByCode();
+    this.initProjectStyle();
   };
 
   findByCode = () => {
@@ -57,11 +57,11 @@ class StrategyHeader extends Component {
     });
   };
 
-  initModuleList = () => {
-    request.post(`${PROJECT_PATH}/strategyBillModule/export`, {}).then(res => {
+  initProjectStyle = () => {
+    request.post(`${PROJECT_PATH}/strategyProjectStyle/export`, {}).then(res => {
       const { data } = res;
       this.setState({
-        moduleList: data,
+        projectStyle: data,
       });
     });
   };
@@ -486,16 +486,16 @@ handleProSubmissionClose = () => {
   // 提交项目
   getProSubmissionProps = () => {
     const { loading, strategyHeader } = this.props;
-    const { proSubmissionVisible, editData, moduleList } = strategyHeader;
+    const { proSubmissionVisible, editData, projectStyle } = strategyHeader;
 
     return {
       onSave: this.handleSave,
       editData,
-      moduleList: this.state.moduleList,
       visible: proSubmissionVisible,
       onClose: this.handleProSubmissionClose,
       saving: loading.effects['strategyHeader/save'],
       user: this.state.user,
+      projectStyle: this.state.projectStyle,
     };
   };
   // 项目确认表
