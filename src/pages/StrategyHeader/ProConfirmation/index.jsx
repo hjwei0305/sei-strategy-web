@@ -5,13 +5,26 @@ import { Input, Col, Row, Select, Upload, Steps, Button, Icon, Form, DatePicker 
 import { ExtModal } from 'suid';
 import style from './index.less';
 
-@withRouter
-@connect(({ proConfirmation, loading }) => ({ proConfirmation, loading }))
-class ProConfirmation extends PureComponent {
+// @withRouter
+// @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
+const FormItem = Form.Item;
+const formItemLayout = {
+  labelCol: {
+    span: 0,
+  },
+  wrapperCol: {
+    span: 24,
+  },
+};
+
+@Form.create()
+
+class FormModal extends PureComponent {
 
 
   render() {
-    const { visible, onClose } = this.props;
+    const { visible, onClose, form } = this.props;
+    const { getFieldDecorator } = form;
 
     const items = [{
       userCode: '380889',
@@ -92,7 +105,8 @@ class ProConfirmation extends PureComponent {
         keyboard
         className={style.container}
       >
-        <div className={style.PageClass}>
+        <Form {...formItemLayout} layout="horizontal" className={style.PageClass}>
+
           <div>
             <div className={style.titleBox}>
               <span className={style.titleBlue}> </span>
@@ -115,25 +129,34 @@ class ProConfirmation extends PureComponent {
               <Col span={3}>系统自动带出</Col>
               <Col span={3}>*项目负责人</Col>
               <Col span={3}>
-                <Select
-                  mode="multiple"
-                  placeholder="必填且支持多选"
-                  defaultValue={['a10', 'c12']}
-                  onChange={handleChange}
-                >
-                  {children}
-                </Select>
+
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select
+                    mode="multiple"
+                    placeholder="必填且支持多选"
+                    defaultValue={['a10', 'c12']}
+                    onChange={handleChange}
+                  >
+                    {children}
+                  </Select>)}
+                </FormItem>
               </Col>
               <Col span={3}>*所属模块</Col>
               <Col span={3}>
-                <Select
-                  mode="multiple"
-                  placeholder="必填且支持多选"
-                  defaultValue={['a10', 'c12']}
-                  onChange={handleChange}
-                >
-                  {children}
-                </Select>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select
+                    mode="multiple"
+                    placeholder="必填且支持多选"
+                    defaultValue={['a10', 'c12']}
+                    onChange={handleChange}
+                  >
+                    {children}
+                  </Select>)}
+                </FormItem>
               </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -156,7 +179,11 @@ class ProConfirmation extends PureComponent {
               </Col>
               <Col span={3}>*项目内容</Col>
               <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="叫你写就写" style={{ height: '79px' }} />)}
+                </FormItem>
               </Col>
             </Row>
             <Row
@@ -166,11 +193,19 @@ class ProConfirmation extends PureComponent {
             >
               <Col span={3}>*项目意义</Col>
               <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="哪来那么多B话" style={{ height: '79px' }} />)}
+                </FormItem>
               </Col>
               <Col span={3}>*项目目标</Col>
               <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="叫你写就写，哪来那么多B话" style={{ height: '79px' }} />)}
+                </FormItem>
               </Col>
             </Row>
           </div>
@@ -263,25 +298,49 @@ class ProConfirmation extends PureComponent {
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>*确认结果</Col>
-              <Col span={3}>  <Select
-                defaultValue="是" allowClear
-                onChange={handleChange}
-              >
-                {children}
-              </Select></Col>
+              <Col span={3}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select
+                    defaultValue="是" allowClear
+                    onChange={handleChange}
+                  >
+                    {children}
+                  </Select>)}
+                </FormItem>
+              </Col>
               <Col span={3}>*确认类别</Col>
-              <Col span={3}>  <Select
-                defaultValue="是" allowClear
-                onChange={handleChange}
-              >
-                {children}
-              </Select></Col>
+              <Col span={3}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select
+                    defaultValue="是" allowClear
+                    onChange={handleChange}
+                  >
+                    {children}
+                  </Select>)}
+                </FormItem>
+              </Col>
               <Col span={3}>*问题点</Col>
-              <Col span={9}> <Input.TextArea placeholder="叫你写就写，哪来那么多B话" /></Col>
+              <Col span={9}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="烦死了" />)}
+                </FormItem>
+              </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>补充说明</Col>
-              <Col span={21}><Input.TextArea placeholder="叫你写就写，哪来那么多B话" /></Col>
+              <Col span={21}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="烦死了" />)}
+                </FormItem>
+              </Col>
             </Row>
           </div>
 
@@ -291,40 +350,51 @@ class ProConfirmation extends PureComponent {
               <div className={style.titleText}>资料初审</div>
             </div>
 
+            <Form className={style.fromClass}>
+              <div>
+                <FormItem labelCol={{ span: 6 }} label='是否通过：' style={{ display: 'inline-block' }}>
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select style={{ display: 'inline-block' }}>
+                    <Select.Option value="demo" >Demo</Select.Option>
+                  </Select>)}
+                </FormItem>
+              </div>
 
 
-            <div className={style.fromClass}>
-              <Form>
-                <div>
-                  <span style={{ display: "inline-block" }}>是否通过：</span>
-                  <Select>
-                    <Select.Option value="demo">Demo</Select.Option>
-                  </Select>
-                </div>
-                <div style={{ display: "inline-block" }}>
-                  工号：<Input />
-                  经营策略管理组：<Input />
-                  日期：<DatePicker />
-                </div>
-                <div>
-                  *审核意见附件上传：
-                  <Button type="primary" size="small" style={{ margin: '10px', background: '#409EFF', border: '1px solid #409EFF' }}>浏 览</Button>
-                  <Upload {...props}>
-                    <Button type="primary" size="small" style={{ margin: '10px', background: '#67C23A', border: '1px solid #67C23A' }}>
-                      <Icon type="upload" />上传文件
-                    </Button>
-                  </Upload>
-                </div>
 
-              </Form>
+                <FormItem labelCol={{ span: 4 }} wrapperCol={{span:20}} label='工号：' style={{ display: 'inline-block' }}>
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input  style={{ display: 'inline-block' }} />)}
+              </FormItem>
+              
+                <FormItem labelCol={{ span: 8}}  wrapperCol={{span:16}}  label='经营策略管理组：' style={{ display: 'inline-block' }}>
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input  style={{ display: 'inline-block' }} />)}
+              </FormItem>
+              
+                <FormItem labelCol={{ span: 4}}  wrapperCol={{span:20}} label='日期：' style={{ display: 'inline-block' }}>
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<DatePicker  style={{ display: 'inline-block' }} />)}
+                </FormItem>
 
 
-            </div>
+              <div>
+                *审核意见附件上传：
+                <Button type="primary" size="small" style={{ margin: '10px', background: '#409EFF', border: '1px solid #409EFF' }}>浏 览</Button>
+                <Upload {...props}>
+                  <Button type="primary" size="small" style={{ margin: '10px', background: '#67C23A', border: '1px solid #67C23A' }}>
+                    <Icon type="upload" />上传文件
+                  </Button>
+                </Upload>
+              </div>
+            </Form>
+
 
           </div>
-
-
-
 
           <div>
             <div className={style.titleBox}>
@@ -351,10 +421,7 @@ class ProConfirmation extends PureComponent {
               />
             </Steps>
           </div>
-
-
-
-        </div>
+        </Form>
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
           <Button type="primary" size="large" style={{ margin: '10px', background: 'grey', border: '1px solid grey' }}>
@@ -376,4 +443,4 @@ class ProConfirmation extends PureComponent {
   }
 }
 
-export default ProConfirmation;
+export default FormModal;

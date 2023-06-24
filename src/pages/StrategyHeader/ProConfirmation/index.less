@@ -53,6 +53,11 @@
     border-style: hidden;
   }
 
+  :global(.ant-form-item) {
+    height: 100%;
+    margin-bottom: 0;
+  }
+
   :global(.ant-select-selection) {
     width: 100%;
     height: 100%;
@@ -113,10 +118,10 @@
 }
 
 .fromClass {
-
   background: #fff;
   text-align: left;
   margin-left: 10rem;
+  margin-bottom: 100px;
 
   :global(.ant-input) {
     width: 200px;
@@ -133,11 +138,31 @@
     height: 100%;
     background: #fff;
     border: 1px solid #DCDFE6;
-    margin: 4px 10px;
+    // margin: 4px 10px;
     border-radius: 5px;
   }
 
   :global(.ant-select-selection) {
     background: #fff;
+    padding: 0 0;
+    margin: 0 0;
   }
+
+
+
+  :global(.ant-form-item-control-wrapper) {
+    background: #fff;
+    border: hidden;
+  }
+
+  :global(.ant-form-item-label) {
+    background: #fff;
+    border: hidden;
+  }
+
+  :global(.ant-row) {
+    background: #fff;
+
+  }
+
 }

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Input, Col, Row, Select, Radio, Steps, Button, Calendar, } from 'antd';
+import { Input, Col, Row, Select, Radio, Steps, Button, Calendar, Form } from 'antd';
 import { ExtModal, ComboList } from 'suid';
 
 import style from './index.less';
@@ -9,9 +9,21 @@ import { constants } from '@/utils';
 const { SERVER_PATH } = constants;
 const { ComboMultiList } = ComboList;
 
-@withRouter
-@connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
-class ProSubmission extends PureComponent {
+// @withRouter
+// @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
+const FormItem = Form.Item;
+const formItemLayout = {
+  labelCol: {
+    span: 0,
+  },
+  wrapperCol: {
+    span: 24,
+  },
+};
+
+@Form.create()
+
+class FormModal extends PureComponent {
 
   state = {
     formData: {}
@@ -23,19 +35,20 @@ class ProSubmission extends PureComponent {
   };
 
   render() {
-    const { visible, onClose, editData, projectStyle } = this.props;
+    const { visible, onClose, editData, projectStyle, form, user } = this.props;
+    const { getFieldDecorator } = form;
 
     const followProps = {
       placeholder: '请选择产品跟进人',
       width: 600,
       name: 'followNames',
-      field: ['followIds','followNums','followNames'],
+      field: ['followIds', 'followNums', 'followNames'],
       store: {
         type: 'post',
         url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
       },
       searchPlaceHolder: '请选择产品跟进人',
-      ListProps:'vertical',
+      ListProps: 'vertical',
       allowClear: true,
       remotePaging: true,
       cascadeParams: {
@@ -58,7 +71,7 @@ class ProSubmission extends PureComponent {
       },
     };
 
-    const contact = editData.contacts[0]==null?{}:editData.contacts[0];
+    const contact = editData.contacts[0] == null ? {} : editData.contacts[0];
 
     const items = [{
       userCode: '380889',
@@ -96,7 +109,7 @@ class ProSubmission extends PureComponent {
         destroyOnClose
         onCancel={onClose}
         visible={visible}
-        title={year+"年度经营策略项目提报申请表(提交项目)"}
+        title={year + "年度经营策略项目提报申请表(提交项目)"}
         centered
         maskClosable={false}
         fullScreen
@@ -104,7 +117,9 @@ class ProSubmission extends PureComponent {
         keyboard
         className={style.container}
       >
-        <div className={style.XXX}>
+
+
+        <Form {...formItemLayout} layout="horizontal" className={style.XXX}>
           <div>
             <div className={style.titleBox}>
               <span className={style.titleBlue}> </span>
@@ -121,13 +136,17 @@ class ProSubmission extends PureComponent {
               <Col span={3}>{contact.userStatue}</Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col span={3} style={{color:'#F56C6C'}}>*项目名称</Col>
+              <Col span={3} style={{ color: '#F56C6C' }}>*项目名称</Col>
               <Col span={3}>{editData.strategyProjectDto.name}</Col>
               <Col span={3}>*工号</Col>
               <Col span={3}>系统自动带出</Col>
               <Col span={3}>*项目负责人</Col>
               <Col span={3}>
-                <ComboMultiList {...followProps} />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<ComboMultiList {...followProps} />)}
+                </FormItem>
               </Col>
               <Col span={3}>*所属模块</Col>
               <Col span={3}>
@@ -139,13 +158,17 @@ class ProSubmission extends PureComponent {
               <Col span={3}>{editData.strategyProjectDto.level}</Col>
               <Col span={3}>*项目类别</Col>
               <Col span={3}>
-                <Select
-                  mode="multiple"
-                  placeholder="必填且支持多选"
 
-                >
-                  {moduleArray}
-                </Select>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select
+                    mode="multiple"
+                    placeholder="必填且支持多选"
+                  >
+                    {moduleArray}
+                  </Select>)}
+                </FormItem>
               </Col>
               <Col span={3}>*项目编号</Col>
               <Col span={3}>{editData.strategyProjectDto.code}</Col>
@@ -163,7 +186,11 @@ class ProSubmission extends PureComponent {
               </Col>
               <Col span={3}>*项目内容</Col>
               <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                </FormItem>
               </Col>
             </Row>
             <Row
@@ -173,11 +200,19 @@ class ProSubmission extends PureComponent {
             >
               <Col span={3}>*项目意义</Col>
               <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                </FormItem>
               </Col>
               <Col span={3}>*项目目标</Col>
-              <Col span={9}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+              <Col span={9} >
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                </FormItem>
               </Col>
             </Row>
           </div>
@@ -251,7 +286,8 @@ class ProSubmission extends PureComponent {
               </Row>
             ))}
           </div>
-        </div>
+        </Form>
+
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
           <Button type="primary" size="large" style={{ margin: '20px' }}>
@@ -278,4 +314,4 @@ class ProSubmission extends PureComponent {
   }
 }
 
-export default ProSubmission;
+export default FormModal;

@@ -1,18 +1,31 @@
 import React, { PureComponent } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Input, Col, Row, Select, Radio, Steps, Button } from 'antd';
+import { Input, Col, Row, Select, Radio, Steps, Button, Form } from 'antd';
 import { ExtModal } from 'suid';
 
 import style from './index.less';
 
-@withRouter
-@connect(({ proChange, loading }) => ({ proChange, loading }))
-class ProChange extends PureComponent {
+// @withRouter
+// @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
+const FormItem = Form.Item;
+const formItemLayout = {
+  labelCol: {
+    span: 0,
+  },
+  wrapperCol: {
+    span: 24,
+  },
+};
+
+@Form.create()
+class FormModal extends PureComponent {
 
 
   render() {
-    const { visible, onClose } = this.props;
+
+    const { visible, onClose, form } = this.props;
+    const { getFieldDecorator } = form;
 
     const items = ['380889', '456355', '551225'];
     const x = items.length * 50;
@@ -34,7 +47,8 @@ class ProChange extends PureComponent {
         keyboard
         className={style.container}
       >
-        <div className={style.XXX}>
+
+        <Form {...formItemLayout} layout="horizontal" className={style.XXX}>
           <div>
             <div className={style.titleBox}>
               <span className={style.titleBlue}> </span>
@@ -54,19 +68,28 @@ class ProChange extends PureComponent {
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>项目层级</Col>
               <Col span={3}>
-                <Select defaultValue="一级">
-                  <Select.Option value="0">CNM别选了</Select.Option>
-                  <Select.Option value="1">一级</Select.Option>
-                  <Select.Option value="2">二级</Select.Option>
-                </Select>
+
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select>
+                    <Select.Option value="0">CNM别选了</Select.Option>
+                    <Select.Option value="1">一级</Select.Option>
+                    <Select.Option value="2">二级</Select.Option>
+                  </Select>)}
+                </FormItem>
               </Col>
               <Col span={3}>项目类别</Col>
               <Col span={3}>
-                <Select defaultValue="十二类可选择" allowClear>
-                  <Select.Option value="0">CNM别选了</Select.Option>
-                  <Select.Option value="1">一</Select.Option>
-                  <Select.Option value="2">二</Select.Option>
-                </Select>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select allowClear>
+                    <Select.Option value="0">CNM别选了</Select.Option>
+                    <Select.Option value="1">一</Select.Option>
+                    <Select.Option value="2">二</Select.Option>
+                  </Select>)}
+                </FormItem>
               </Col>
               <Col span={3}>项目编号</Col>
               <Col span={9}>系统自动带出</Col>
@@ -74,22 +97,30 @@ class ProChange extends PureComponent {
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>申请变更类别</Col>
               <Col span={21}>
-                <Select defaultValue="变更" allowClear>
-                  <Select.Option value="0">变更NM</Select.Option>
-                  <Select.Option value="1">NM 骂你就骂你</Select.Option>
-                  <Select.Option value="2">还用选日子？</Select.Option>
-                </Select>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select allowClear>
+                    <Select.Option value="0">变更NM</Select.Option>
+                    <Select.Option value="1">NM 骂你就骂你</Select.Option>
+                    <Select.Option value="2">还用选日子？</Select.Option>
+                  </Select>)}
+                </FormItem>
               </Col>
             </Row>
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>*申请理由</Col>
               <Col span={21}>
-                <Select defaultValue="草泥马草泥马草泥马" allowClear>
-                  <Select.Option value="0">变更NM</Select.Option>
-                  <Select.Option value="1">NM 骂你就骂你</Select.Option>
-                  <Select.Option value="2">还用选日子？</Select.Option>
-                </Select>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Select allowClear>
+                    <Select.Option value="0">变更NM</Select.Option>
+                    <Select.Option value="1">NM 骂你就骂你</Select.Option>
+                    <Select.Option value="2">还用选日子？</Select.Option>
+                  </Select>)}
+                </FormItem>
               </Col>
             </Row>
             <Row
@@ -99,19 +130,27 @@ class ProChange extends PureComponent {
             >
               <Col span={3}>对应的经营策略</Col>
               <Col span={21}>
-                <Input.TextArea placeholder="叫你写就写，哪来那么多B话" />
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="叫你写就写，哪来那么多B话" style={{ height: '79px' }} />)}
+                </FormItem>
               </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>*项目变更内容</Col>
               <Col span={21} align="left">
-                <Radio.Group onChange={onChange} style={{ marginLeft: '1rem' }}>
-                  <Radio value="1">项目名称</Radio>
-                  <Radio value="2">项目内容</Radio>
-                  <Radio value="3">项目目标</Radio>
-                  <Radio value="4">项目计划</Radio>
-                  <Radio value="5">其他</Radio>
-                </Radio.Group>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Radio.Group onChange={onChange} style={{ marginLeft: '1rem' }}>
+                    <Radio value="1">项目名称</Radio>
+                    <Radio value="2">项目内容</Radio>
+                    <Radio value="3">项目目标</Radio>
+                    <Radio value="4">项目计划</Radio>
+                    <Radio value="5">其他</Radio>
+                  </Radio.Group>)}
+                </FormItem>
               </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -122,12 +161,24 @@ class ProChange extends PureComponent {
                 *项目变更内容说明
               </Col>
               <Col span={3}>*原项目内容</Col>
-              <Col span={18} />
+              <Col span={18}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="叫你写就写，哪来那么多B话" />)}
+                </FormItem>
+              </Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3} style={{ borderTop: 'hidden' }} />
               <Col span={3}>*变更后项目内容</Col>
-              <Col span={18} />
+              <Col span={18}>
+                <FormItem >
+                  {getFieldDecorator('userName', {
+                    //  initialValue: user && user.userName,
+                  })(<Input.TextArea placeholder="叫你写就写，哪来那么多B话" />)}
+                </FormItem>
+              </Col>
             </Row>
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
@@ -154,10 +205,15 @@ class ProChange extends PureComponent {
               >
                 <Col span={12}>*是否需要会签</Col>
                 <Col span={12}>
-                  <Select defaultValue="是" allowClear style={{ width: '85%' }}>
-                    <Select.Option value="1">是</Select.Option>
-                    <Select.Option value="0">否</Select.Option>
-                  </Select>
+                  <FormItem>
+                    {getFieldDecorator('userName2', {
+                      //  initialValue: user && user.userName,
+                    })(<Select defaultValue="是" allowClear style={{ width: '83%', marginLeft: '-22px' }}>
+                      <Select.Option value="1">是</Select.Option>
+                      <Select.Option value="0">否</Select.Option>
+                    </Select>
+                    )}
+                  </FormItem>
                 </Col>
               </Row>
             </div>
@@ -168,7 +224,7 @@ class ProChange extends PureComponent {
                 <Col span={4}>日期</Col>
                 <Col span={8}>系统自动带出</Col>
               </Row>
-              {items.map((item,index) => (
+              {items.map((item, index) => (
                 <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                   <Col span={4}>工号</Col>
                   <Col span={4} >{item}</Col>
@@ -206,7 +262,7 @@ class ProChange extends PureComponent {
               />
             </Steps>
           </div>
-        </div>
+        </Form>
 
         <div style={{ textAlign: 'center' }}>
           <Button type="primary" ghost size="large" style={{ margin: '0 5rem' }}>
@@ -228,4 +284,4 @@ class ProChange extends PureComponent {
   }
 }
 
-export default ProChange;
+export default FormModal;
