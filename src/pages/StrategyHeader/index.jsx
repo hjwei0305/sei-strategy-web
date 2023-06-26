@@ -9,7 +9,7 @@ import { exportXlsx, constants } from '@/utils';
 import { getCurrentUser } from '@/utils/user';
 import ProChange from '../StrategyHeader/ProChange/index';
 import ProConfirmation from '../StrategyHeader/ProConfirmation/index';
-import ProSubmission from './ProSubmission/EditModal';
+import ProSubmission from './ProSubmission/index';
 
 const { PROJECT_PATH, SERVER_PATH } = constants;
 
@@ -486,7 +486,7 @@ handleProSubmissionClose = () => {
   // 提交项目
   getProSubmissionProps = () => {
     const { loading, strategyHeader } = this.props;
-    const { proSubmissionVisible, editData, projectStyle } = strategyHeader;
+    const { proSubmissionVisible, editData } = strategyHeader;
 
     return {
       onSave: this.handleSave,

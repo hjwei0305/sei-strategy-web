@@ -9,8 +9,6 @@ import { constants } from '@/utils';
 const { SERVER_PATH } = constants;
 const { ComboMultiList } = ComboList;
 
-// @withRouter
-// @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
 const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: {
@@ -31,11 +29,10 @@ class FormModal extends PureComponent {
 
   handAdd = () => {
     const { form, onSave, editData } = this.props;
-
   };
 
   render() {
-    const { visible, onClose, editData, projectStyle, form, user } = this.props;
+    const { visible, onClose, editData,projectStyle, form, user } = this.props;
     const { getFieldDecorator } = form;
 
     const followProps = {
@@ -95,7 +92,7 @@ class FormModal extends PureComponent {
     const Option = Select.Option;
 
     const moduleArray = [];
-    console.log(projectStyle);
+
     for (let i = 0; i < projectStyle.length; i++) {
       moduleArray.push(<Option key={projectStyle[i].code}>{projectStyle[i].projectStyle}</Option>);
     }
@@ -118,7 +115,6 @@ class FormModal extends PureComponent {
         className={style.container}
       >
 
-
         <Form {...formItemLayout} layout="horizontal" className={style.XXX}>
           <div>
             <div className={style.titleBox}>
@@ -139,7 +135,7 @@ class FormModal extends PureComponent {
               <Col span={3} style={{ color: '#F56C6C' }}>*项目名称</Col>
               <Col span={3}>{editData.strategyProjectDto.name}</Col>
               <Col span={3}>*工号</Col>
-              <Col span={3}>系统自动带出</Col>
+              <Col span={3}>{editData.strategyProjectDto.code}</Col>
               <Col span={3}>*项目负责人</Col>
               <Col span={3}>
                 <FormItem >
@@ -158,10 +154,8 @@ class FormModal extends PureComponent {
               <Col span={3}>{editData.strategyProjectDto.level}</Col>
               <Col span={3}>*项目类别</Col>
               <Col span={3}>
-
                 <FormItem >
                   {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
                   })(<Select
                     mode="multiple"
                     placeholder="必填且支持多选"
