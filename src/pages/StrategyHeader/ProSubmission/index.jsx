@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
 import { Input, Col, Row, Select, Radio, Steps, Button, Calendar, Form } from 'antd';
-import { ExtModal, ComboList } from 'suid';
+import { ExtModal, ComboList, Space } from 'suid';
 
 import style from './index.less';
 import { constants } from '@/utils';
@@ -24,27 +24,63 @@ const formItemLayout = {
 class FormModal extends PureComponent {
 
   state = {
+    obj: [],
     formData: {}
   }
 
   handAdd = () => {
     const { form, onSave, editData } = this.props;
+    form.validateFields((err, formData) => {
+      if (err) {
+        return;
+      }
+      // const params = {};
+      // Object.assign(params, editData, formData);
+      // params.strategyAnalyzeBillDto.description = params.description;
+      // if (onSave) {
+      //   onSave(params);
+      // }
+      console.log(formData);
+    });
+  };
+  
+  //新增关联人行
+  addRelatedOne = () => {
+    let add_obj = [];
+    let key;
+    if(this.state.obj.length > 0){
+      key = Math.max.apply(Math,this.state.obj.map(item => {
+        return item.key;
+      }
+      ));
+    }else{
+      key = -1;
+    }
+    add_obj = this.state.obj.concat({
+      key: key + 1,
+      user_code: '',
+      user_name: '',
+      department: '',
+      user_statue: '',
+    });
+    this.state.obj = add_obj;
+    this.forceUpdate();
   };
 
   render() {
-    const { visible, onClose, editData,projectStyle, form, user } = this.props;
+    const { visible, onClose, editData, projectStyle, form, user, projectLevel } = this.props;
     const { getFieldDecorator } = form;
-
-    const followProps = {
-      placeholder: '请选择产品跟进人',
+    
+    const officerProps = {
+      placeholder: '请选择项目负责人',
       width: 600,
       name: 'followNames',
-      field: ['followIds', 'followNums', 'followNames'],
+      field: ['followIds', 'officerCodes', 'followNames'],
       store: {
         type: 'post',
         url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
       },
-      searchPlaceHolder: '请选择产品跟进人',
+      searchPlaceHolder: '请选择项目负责人',
       ListProps: 'vertical',
       allowClear: true,
       remotePaging: true,
@@ -57,9 +93,41 @@ class FormModal extends PureComponent {
       pagination: true,
       searchProperties: ['userName', 'code'],
       afterClear: (item) => {
-      }
-      ,
+      },
       afterSelect: item => {
+        let codeStr = '';
+        for(let i=0;i<item.length;i++){
+          codeStr+=item[i].code+',';
+        }
+        form.setFieldsValue({officerCodes: codeStr});
+      },
+      reader: {
+        name: 'userName',
+        description: 'organizationName',
+        field: ['id', 'code', 'userName'],
+      },
+    };
+
+    const employeeProps = {
+      placeholder: '根据工号或者姓名搜索！',
+      width: 600,
+      allowClear: true,
+      remotePaging: true,
+      cascadeParams: {
+        includeFrozen: false,
+        includeSubNode: true,
+        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
+      },
+      showSearch: true,
+      pagination: true,
+      searchProperties: ['userName', 'code'],
+      searchPlaceHolder: '根据工号或者姓名搜索！',
+      afterClear: () =>form.setFieldsValue({}),
+      afterSelect: item => form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,userId:item.id,
+        userStatue:item.frozen===false?'在职':'离职',}),
+      store: {
+        type: 'post',
+        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
       },
       reader: {
         name: 'userName',
@@ -87,14 +155,22 @@ class FormModal extends PureComponent {
       userName: '傻逼',
       bumen: '真的傻逼',
       zhuangtai: '离职'
-    }
-    ];
+    }];
+
+    const officers = [];
+
     const Option = Select.Option;
 
     const moduleArray = [];
 
+    const projectLevelArray = [];
+
     for (let i = 0; i < projectStyle.length; i++) {
       moduleArray.push(<Option key={projectStyle[i].code}>{projectStyle[i].projectStyle}</Option>);
+    }
+
+    for (let i = 0; i < projectLevel.length; i++) {
+      projectLevelArray.push(<Option key={projectLevel[i].code}>{projectLevel[i].level}</Option>);
     }
 
     const Data = new Date().toLocaleString();
@@ -135,13 +211,17 @@ class FormModal extends PureComponent {
               <Col span={3} style={{ color: '#F56C6C' }}>*项目名称</Col>
               <Col span={3}>{editData.strategyProjectDto.name}</Col>
               <Col span={3}>*工号</Col>
-              <Col span={3}>{editData.strategyProjectDto.code}</Col>
+              <Col span={3}>
+                <FormItem >
+                  {getFieldDecorator('officerCodes', {
+                  })(<Input readOnly />)}
+                </FormItem>
+              </Col>
               <Col span={3}>*项目负责人</Col>
               <Col span={3}>
                 <FormItem >
                   {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<ComboMultiList {...followProps} />)}
+                  })(<ComboMultiList {...officerProps} />)}
                 </FormItem>
               </Col>
               <Col span={3}>*所属模块</Col>
@@ -151,11 +231,20 @@ class FormModal extends PureComponent {
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>*项目层级</Col>
-              <Col span={3}>{editData.strategyProjectDto.level}</Col>
+              <Col span={3}>
+                <FormItem >
+                  {getFieldDecorator('projectLevel', {
+                  })(<Select
+                    placeholder="请选择"
+                  >
+                    {projectLevelArray}
+                  </Select>)}
+                </FormItem>
+              </Col>
               <Col span={3}>*项目类别</Col>
               <Col span={3}>
                 <FormItem >
-                  {getFieldDecorator('userName', {
+                  {getFieldDecorator('projectStyles', {
                   })(<Select
                     mode="multiple"
                     placeholder="必填且支持多选"
@@ -181,9 +270,8 @@ class FormModal extends PureComponent {
               <Col span={3}>*项目内容</Col>
               <Col span={9}>
                 <FormItem >
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                  {getFieldDecorator('content', {
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
             </Row>
@@ -195,17 +283,15 @@ class FormModal extends PureComponent {
               <Col span={3}>*项目意义</Col>
               <Col span={9}>
                 <FormItem >
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                  {getFieldDecorator('significance', {
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
               <Col span={3}>*项目目标</Col>
               <Col span={9} >
                 <FormItem >
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<Input.TextArea style={{ height: '79px' }} placeholder='xie'/>)}
+                  {getFieldDecorator('target', {
+                  })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
             </Row>
@@ -215,6 +301,13 @@ class FormModal extends PureComponent {
             <div className={style.titleBox}>
               <span className={style.titleBlue}> </span>
               <div className={style.titleText}>相关方</div>
+              <div style={{ textAlign: 'left', marginBottom: '10px' }}>
+                <Space>
+                  <Button key="add" icon="plus" type="primary" onClick={this.addRelatedOne} ignore="true">
+                      新增行
+                  </Button>
+                </Space>
+              </div>
             </div>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={2}>序号</Col>
@@ -224,16 +317,20 @@ class FormModal extends PureComponent {
               <Col span={4}>人员状态</Col>
               <Col span={3}>操作</Col>
             </Row>
-            {items.map((item, index) => (
-              <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                <Col span={2}>{index + 1}</Col>
-                <Col span={5}>{item.userCode}</Col>
-                <Col span={5}>{item.userName}</Col>
-                <Col span={5}>{item.bumen}</Col>
-                <Col span={4}>{item.zhuangtai}</Col>
-                <Col span={3}>操作</Col>
-              </Row>
-            ))}
+            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+              <Col span={2}>
+                <FormItem >
+                  {getFieldDecorator('relatedOne', {
+                    initialValue: 1,
+                  })(<Input readOnly/>)}
+                </FormItem>
+              </Col>
+              <Col span={5}><Input /></Col>
+              <Col span={5}><Input /></Col>
+              <Col span={5}><Input /></Col>
+              <Col span={4}><Input /></Col>
+              <Col span={3}><Input /></Col>
+            </Row>
 
           </div>
 

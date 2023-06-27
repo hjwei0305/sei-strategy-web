@@ -25,6 +25,7 @@ class StrategyHeader extends Component {
     stateList: [],
     user: null,
     projectStyle: [],
+    projectLevel: [],
   };
 
   constructor(prop) {
@@ -33,6 +34,7 @@ class StrategyHeader extends Component {
     this.initStateList();
     this.findByCode();
     this.initProjectStyle();
+    this.initProjectLevel();
   };
 
   findByCode = () => {
@@ -62,6 +64,15 @@ class StrategyHeader extends Component {
       const { data } = res;
       this.setState({
         projectStyle: data,
+      });
+    });
+  };
+
+  initProjectLevel = () => {
+    request.post(`${PROJECT_PATH}/strategyProjectLevel/export`, {}).then(res => {
+      const { data } = res;
+      this.setState({
+        projectLevel: data,
       });
     });
   };
@@ -121,6 +132,7 @@ class StrategyHeader extends Component {
         this.dispatchAction({
           type: 'strategyHeader/updateState',
           payload: {
+            modalVisible: false,
             proSubmissionVisible: true,
             editData: row,
           },
@@ -163,6 +175,17 @@ class StrategyHeader extends Component {
             modalVisible: false,
           },
         });
+        this.findByPage();
+      }
+    });
+  };
+
+  handleProSubmissionSave = data => {
+    this.dispatchAction({
+      type: 'strategyProject/save',
+      payload: data,
+    }).then(res => {
+      if (res.success) {
         this.findByPage();
       }
     });
@@ -312,12 +335,12 @@ handleProSubmissionClose = () => {
       },
       {
         title: '当前阶段',
-        dataIndex: 'strategyAnalyzeBillDto.stage',
+        dataIndex: 'strategyProjectDto.stage',
         width: 120,
         required: true,
         render: (_, record) => {
           for (let i of this.state.stateList) {
-            if (i.dataValue === record.strategyAnalyzeBillDto.stage) {
+            if (i.dataValue === record.strategyProjectDto.stage) {
               return i.dataName
             }
           }
@@ -332,7 +355,7 @@ handleProSubmissionClose = () => {
         className: 'action',
         required: true,
         render: (_, record) => {
-          if (record.strategyAnalyzeBillDto.stage === 'relevancy') {
+          if (record.strategyProjectDto.stage === 'relevancy') {
             return (
               <Space>
                 <div style={{ color: '#1890ff', cursor: 'pointer' }}
@@ -347,7 +370,7 @@ handleProSubmissionClose = () => {
               </Space>
             )
           }
-          if (record.strategyAnalyzeBillDto.stage === 'submit') {
+          if (record.strategyProjectDto.stage === 'submit') {
             return (
               <Space>
                 <div style={{ color: '#666' }}>关联项目
@@ -362,7 +385,7 @@ handleProSubmissionClose = () => {
               </Space>
             )
           }
-          if (record.strategyAnalyzeBillDto.stage === 'affirm') {
+          if (record.strategyProjectDto.stage === 'affirm') {
             return (
               <Space>
                 <div style={{ color: '#666' }}>关联项目
@@ -377,7 +400,7 @@ handleProSubmissionClose = () => {
               </Space>
             )
           }
-          if (record.strategyAnalyzeBillDto.stage === 'change') {
+          if (record.strategyProjectDto.stage === 'change') {
             return (
               <Space>
                 <div style={{ color: '#666' }}>关联项目
@@ -487,15 +510,16 @@ handleProSubmissionClose = () => {
   getProSubmissionProps = () => {
     const { loading, strategyHeader } = this.props;
     const { proSubmissionVisible, editData } = strategyHeader;
-
+    
     return {
-      onSave: this.handleSave,
+      onSave: this.handleProSubmissionSave,
       editData,
       visible: proSubmissionVisible,
       onClose: this.handleProSubmissionClose,
       saving: loading.effects['strategyHeader/save'],
       user: this.state.user,
       projectStyle: this.state.projectStyle,
+      projectLevel: this.state.projectLevel,
     };
   };
   // 项目确认表
