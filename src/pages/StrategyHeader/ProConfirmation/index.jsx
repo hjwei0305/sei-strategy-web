@@ -1,9 +1,13 @@
+// 项目确认页面 ProConfirmation
 import React, { PureComponent } from 'react';
 import { withRouter } from 'umi';
 import { connect } from 'dva';
-import { Input, Col, Row, Select, Upload, Steps, Button, Icon, Form, DatePicker } from 'antd';
-import { ExtModal } from 'suid';
+import { Input, Col, Row, Select, Upload, Steps, Button, Icon, Form, DatePicker, InputNumber } from 'antd';
+import { ComboList, ExtModal, ExtTable } from 'suid';
 import style from './index.less';
+
+import { constants } from '@/utils';
+const { SERVER_PATH } = constants;
 
 // @withRouter
 // @connect(({ proSubmission, loading }) => ({ proSubmission, loading }))
@@ -17,13 +21,291 @@ const formItemLayout = {
   },
 };
 
+
 @Form.create()
 
 class FormModal extends PureComponent {
+  static editData;
+  constructor(props) {
+    super(props);
+    this.editData = [];
+    const officerProps = {
+      placeholder: '请选择项目负责人',
+      width: 600,
+      name: 'followNames',
+      field: ['followIds', 'officerCodes', 'followNames'],
+      store: {
+        type: 'post',
+        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
+      },
+      searchPlaceHolder: '请选择项目负责人',
+      ListProps: 'vertical',
+      allowClear: true,
+      remotePaging: true,
+      cascadeParams: {
+        includeFrozen: false,
+        includeSubNode: true,
+        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
+      },
+      showSearch: true,
+      pagination: true,
+      searchProperties: ['userName', 'code'],
+      afterClear: (item) => {
+      },
+      afterSelect: item => {
+        let codeStr = '';
+        for (let i = 0; i < item.length; i++) {
+          codeStr += item[i].code + ',';
+        }
+        // form.setFieldsValue({ officerCodes: codeStr });
+      },
+      reader: {
+        name: 'userName',
+        description: 'organizationName',
+        field: ['id', 'code', 'userName'],
+      },
+    };
 
+    this.setState({
+      officerProps: officerProps
+    })
+
+  };
+  static errorMsgs;
+  static obj = [];
+
+  state = {
+    obj: [],
+    assetsList: [],
+    editingKey: '',
+    columns: [],
+    correlationLine: [
+      {
+        title: '序号',
+        dataIndex: 'index',
+        width: 250,
+        align: 'center',
+      },
+      {
+        title: '相关方工号',
+        dataIndex: 'correlationCode',
+        width: 250,
+        align: 'center',
+        // e.target.value 修改值  record 行
+        render: (_, record) => (
+          <Input
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'correlationCode') }}
+            min={1} max={6} />
+        )
+      },
+      {
+        title: '相关方姓名',
+        dataIndex: 'correlationName',
+        width: 250,
+        align: 'center',
+        // e.target.value 修改值  record 行
+        render: (_, record) => (
+          <ComboList
+            placeholder={'请选择相关人'}
+            name={'followNames'}
+            field={['followIds', 'officerCodes', 'followNames']}
+            store={this.XX}
+            searchPlaceHolder={'搜索框'}
+            ListProps={'vertical'}
+            allowClear
+            remotePaging
+            // cascadeParams={
+            //   [
+            //     includeFrozen = [false],
+            //     includeSubNode = [true],
+            //     organizationId = ['734FB618-BA26-11EC-9755-0242AC14001A'],
+            //   ]
+            // }
+            showSearch
+            pagination
+            searchProperties={
+              ['userName', 'code']
+            }
+          // reader={
+          //   // [
+          //   //   name2 = ['userName'],
+          //   //   description = ['organizationName'],
+          //   //   field = ['id', 'code', 'userName']
+          //   // ]
+          // }
+          />
+        )
+      },
+      {
+        title: '部门',
+        dataIndex: 'department',
+        width: 250,
+        align: 'center',
+        // e.target.value 修改值  record 行
+        render: (_, record) => (
+          <Input
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'department') }} />
+        )
+      },
+      {
+        title: '人员状态',
+        dataIndex: 'perStatus',
+        width: 250,
+        align: 'center',
+        // e.target.value 修改值  record 行
+        render: (_, record) => (
+          <Input
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'perStatus') }} />
+        )
+      },
+      {
+        title: '操作',
+        key: 'operation',
+        width: 250,
+        dataIndex: 'id',
+        align: 'center',
+        render: (_, record) => (
+          <span>
+            <Button
+              key="del"
+              onClick={() => this.handleDel(record)}
+              type="danger"
+              ghost
+              ignore="true"
+            >
+              删除
+            </Button>
+          </span>
+        ),
+      },
+    ],
+    feedLines: [],
+  }
+  handleSelect = () => {
+    const officerProps = {
+      placeholder: '请选择项目负责人',
+      width: 600,
+      name: 'followNames',
+      field: ['followIds', 'officerCodes', 'followNames'],
+      store: {
+        type: 'post',
+        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
+      },
+      searchPlaceHolder: '请选择项目负责人',
+      ListProps: 'vertical',
+      allowClear: true,
+      remotePaging: true,
+      cascadeParams: {
+        includeFrozen: false,
+        includeSubNode: true,
+        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
+      },
+      showSearch: true,
+      pagination: true,
+      searchProperties: ['userName', 'code'],
+      afterClear: (item) => {
+      },
+      afterSelect: item => {
+        let codeStr = '';
+        for (let i = 0; i < item.length; i++) {
+          codeStr += item[i].code + ',';
+        }
+        // form.setFieldsValue({ officerCodes: codeStr });
+      },
+      reader: {
+        name: 'userName',
+        description: 'organizationName',
+        field: ['id', 'code', 'userName'],
+      },
+    };
+    return officerProps
+  }
+
+
+  // 处理单元格保存
+  handleCellSave = (e, r, index) => {
+    const row = r;
+    const feed_Lines = this.state.feedLines
+    row[index] = e
+    this.editData[r.key - 1] = row;
+    feed_Lines[r.key - 1] = row
+    this.setState({
+      feedLines: feed_Lines
+    })
+  }
+
+  //新增行
+  handleAddGood = () => {
+    // feedLines
+    let add_obj = [];
+    const newObj = this.state.feedLines
+    console.log(newObj)
+    let key = Math.max.apply(
+      Math,
+      newObj.map(item => {
+        return item.key;
+      }),
+    );
+    let index = Math.max.apply(
+      Math,
+      newObj.map(item => {
+        return item.index;
+      }),
+    );
+    if (index === -Infinity) {
+      index = 0;
+      key = 0;
+    }
+    console.log(newObj)
+    add_obj = newObj.concat({
+      index: index + 1,
+      key: key + 1,
+      correlationCode: '',
+      // correlationName: '',
+      department: '',
+      perStatus: '',
+      id: null
+    });
+    console.log(this.state.feedLines)
+    console.log(add_obj)
+    this.setState({
+      feedLines: add_obj
+    })
+    this.forceUpdate();
+  };
+  //删除
+  handleDel = record => {
+    const newObj = []
+    this.state.feedLines.forEach(item => item !== record && newObj.push(item));
+    for (let i = 0; i <= newObj.length - 1; i++) {
+      newObj[i].index = i + 1;
+    }
+    this.setState({
+      feedLines: newObj
+    })
+
+    console.log(this.state.feedLines)
+    this.forceUpdate()
+  };
+
+  getExtableProps = () => {
+    return {
+      columns: this.state.correlationLine,
+      bordered: true,
+      refreshButton: 'empty',
+      lineNumber: false,
+      showSearch: false,
+      pagination: false,
+      allowCustomColumns: false,
+      checkbox: false,
+      dataSource: this.state.feedLines,
+      rowKey: 'key',
+    };
+  }
 
   render() {
     const { visible, onClose, form } = this.props;
+    const { officerProps } = this.state
     const { getFieldDecorator } = form;
 
     const items = [{
@@ -92,6 +374,9 @@ class FormModal extends PureComponent {
       ],
     };
 
+
+
+
     return (
       <ExtModal
         destroyOnClose
@@ -136,7 +421,7 @@ class FormModal extends PureComponent {
                   })(<Select
                     mode="multiple"
                     placeholder="必填且支持多选"
-                    defaultValue={['a10', 'c12']}
+
                     onChange={handleChange}
                   >
                     {children}
@@ -151,7 +436,7 @@ class FormModal extends PureComponent {
                   })(<Select
                     mode="multiple"
                     placeholder="必填且支持多选"
-                    defaultValue={['a10', 'c12']}
+
                     onChange={handleChange}
                   >
                     {children}
@@ -215,25 +500,36 @@ class FormModal extends PureComponent {
               <span className={style.titleBlue}> </span>
               <div className={style.titleText}>相关方</div>
             </div>
-            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+            <div style={{ textAlign: 'left', marginBottom: '10px' }}>
+              <Button
+                key="add"
+                icon="plus"
+                type="primary"
+                onClick={this.handleAddGood}
+                ignore="true">
+                新增行
+              </Button>
+            </div>
+            {/* <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={2}>序号</Col>
               <Col span={5}>相关方工号</Col>
               <Col span={5}>相关方姓名</Col>
               <Col span={5}>部门</Col>
               <Col span={4}>人员状态</Col>
               <Col span={3}>操作</Col>
-            </Row>
-            {items.map((item, index) => (
-              <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                <Col span={2}>{index + 1}</Col>
-                <Col span={5}>{item.userCode}</Col>
-                <Col span={5}>{item.userName}</Col>
-                <Col span={5}>{item.bumen}</Col>
-                <Col span={4}>{item.zhuangtai}</Col>
-                <Col span={3}>操作</Col>
-              </Row>
-            ))}
+            </Row> */}
 
+            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="space-around"
+              style={{ height: "250px" }}>
+              <Col span={24}>
+                <ExtTable
+                  onTableRef={inst => (this.tableRef = inst)}
+                  {...this.getExtableProps()}
+                />
+              </Col>
+
+
+            </Row>
           </div>
 
           <div>
@@ -303,7 +599,7 @@ class FormModal extends PureComponent {
                   {getFieldDecorator('userName', {
                     //  initialValue: user && user.userName,
                   })(<Select
-                    defaultValue="是" allowClear
+                    allowClear
                     onChange={handleChange}
                   >
                     {children}
@@ -316,7 +612,7 @@ class FormModal extends PureComponent {
                   {getFieldDecorator('userName', {
                     //  initialValue: user && user.userName,
                   })(<Select
-                    defaultValue="是" allowClear
+                    allowClear
                     onChange={handleChange}
                   >
                     {children}
@@ -363,23 +659,23 @@ class FormModal extends PureComponent {
 
 
 
-                <FormItem labelCol={{ span: 4 }} wrapperCol={{span:20}} label='工号：' style={{ display: 'inline-block' }}>
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<Input  style={{ display: 'inline-block' }} />)}
+              <FormItem labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} label='工号：' style={{ display: 'inline-block' }}>
+                {getFieldDecorator('userName', {
+                  //  initialValue: user && user.userName,
+                })(<Input style={{ display: 'inline-block' }} />)}
               </FormItem>
-              
-                <FormItem labelCol={{ span: 8}}  wrapperCol={{span:16}}  label='经营策略管理组：' style={{ display: 'inline-block' }}>
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<Input  style={{ display: 'inline-block' }} />)}
+
+              <FormItem labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} label='经营策略管理组：' style={{ display: 'inline-block' }}>
+                {getFieldDecorator('userName', {
+                  //  initialValue: user && user.userName,
+                })(<Input style={{ display: 'inline-block' }} />)}
               </FormItem>
-              
-                <FormItem labelCol={{ span: 4}}  wrapperCol={{span:20}} label='日期：' style={{ display: 'inline-block' }}>
-                  {getFieldDecorator('userName', {
-                    //  initialValue: user && user.userName,
-                  })(<DatePicker  style={{ display: 'inline-block' }} />)}
-                </FormItem>
+
+              <FormItem labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} label='日期：' style={{ display: 'inline-block' }}>
+                {getFieldDecorator('userName', {
+                  //  initialValue: user && user.userName,
+                })(<DatePicker style={{ display: 'inline-block' }} />)}
+              </FormItem>
 
 
               <div>
