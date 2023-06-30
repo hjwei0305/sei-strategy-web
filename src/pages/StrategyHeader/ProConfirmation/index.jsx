@@ -21,7 +21,6 @@ const formItemLayout = {
   },
 };
 
-
 @Form.create()
 
 class FormModal extends PureComponent {
@@ -29,47 +28,6 @@ class FormModal extends PureComponent {
   constructor(props) {
     super(props);
     this.editData = [];
-    const officerProps = {
-      placeholder: '请选择项目负责人',
-      width: 600,
-      name: 'followNames',
-      field: ['followIds', 'officerCodes', 'followNames'],
-      store: {
-        type: 'post',
-        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
-      },
-      searchPlaceHolder: '请选择项目负责人',
-      ListProps: 'vertical',
-      allowClear: true,
-      remotePaging: true,
-      cascadeParams: {
-        includeFrozen: false,
-        includeSubNode: true,
-        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
-      },
-      showSearch: true,
-      pagination: true,
-      searchProperties: ['userName', 'code'],
-      afterClear: (item) => {
-      },
-      afterSelect: item => {
-        let codeStr = '';
-        for (let i = 0; i < item.length; i++) {
-          codeStr += item[i].code + ',';
-        }
-        // form.setFieldsValue({ officerCodes: codeStr });
-      },
-      reader: {
-        name: 'userName',
-        description: 'organizationName',
-        field: ['id', 'code', 'userName'],
-      },
-    };
-
-    this.setState({
-      officerProps: officerProps
-    })
-
   };
   static errorMsgs;
   static obj = [];
@@ -105,35 +63,8 @@ class FormModal extends PureComponent {
         align: 'center',
         // e.target.value 修改值  record 行
         render: (_, record) => (
-          <ComboList
-            placeholder={'请选择相关人'}
-            name={'followNames'}
-            field={['followIds', 'officerCodes', 'followNames']}
-            store={this.XX}
-            searchPlaceHolder={'搜索框'}
-            ListProps={'vertical'}
-            allowClear
-            remotePaging
-            // cascadeParams={
-            //   [
-            //     includeFrozen = [false],
-            //     includeSubNode = [true],
-            //     organizationId = ['734FB618-BA26-11EC-9755-0242AC14001A'],
-            //   ]
-            // }
-            showSearch
-            pagination
-            searchProperties={
-              ['userName', 'code']
-            }
-          // reader={
-          //   // [
-          //   //   name2 = ['userName'],
-          //   //   description = ['organizationName'],
-          //   //   field = ['id', 'code', 'userName']
-          //   // ]
-          // }
-          />
+          <Input
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'correlationName') }} />
         )
       },
       {
@@ -181,46 +112,6 @@ class FormModal extends PureComponent {
     ],
     feedLines: [],
   }
-  handleSelect = () => {
-    const officerProps = {
-      placeholder: '请选择项目负责人',
-      width: 600,
-      name: 'followNames',
-      field: ['followIds', 'officerCodes', 'followNames'],
-      store: {
-        type: 'post',
-        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
-      },
-      searchPlaceHolder: '请选择项目负责人',
-      ListProps: 'vertical',
-      allowClear: true,
-      remotePaging: true,
-      cascadeParams: {
-        includeFrozen: false,
-        includeSubNode: true,
-        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
-      },
-      showSearch: true,
-      pagination: true,
-      searchProperties: ['userName', 'code'],
-      afterClear: (item) => {
-      },
-      afterSelect: item => {
-        let codeStr = '';
-        for (let i = 0; i < item.length; i++) {
-          codeStr += item[i].code + ',';
-        }
-        // form.setFieldsValue({ officerCodes: codeStr });
-      },
-      reader: {
-        name: 'userName',
-        description: 'organizationName',
-        field: ['id', 'code', 'userName'],
-      },
-    };
-    return officerProps
-  }
-
 
   // 处理单元格保存
   handleCellSave = (e, r, index) => {
@@ -239,7 +130,7 @@ class FormModal extends PureComponent {
     // feedLines
     let add_obj = [];
     const newObj = this.state.feedLines
-    console.log(newObj)
+
     let key = Math.max.apply(
       Math,
       newObj.map(item => {
@@ -256,23 +147,23 @@ class FormModal extends PureComponent {
       index = 0;
       key = 0;
     }
-    console.log(newObj)
+
     add_obj = newObj.concat({
       index: index + 1,
       key: key + 1,
       correlationCode: '',
-      // correlationName: '',
+      correlationName: '',
       department: '',
       perStatus: '',
       id: null
     });
-    console.log(this.state.feedLines)
-    console.log(add_obj)
+    console.log('新增',add_obj)
     this.setState({
       feedLines: add_obj
     })
     this.forceUpdate();
   };
+
   //删除
   handleDel = record => {
     const newObj = []
@@ -284,10 +175,11 @@ class FormModal extends PureComponent {
       feedLines: newObj
     })
 
-    console.log(this.state.feedLines)
+    console.log('删除',this.state.feedLines)
     this.forceUpdate()
   };
 
+  // 获取组件
   getExtableProps = () => {
     return {
       columns: this.state.correlationLine,
@@ -305,7 +197,6 @@ class FormModal extends PureComponent {
 
   render() {
     const { visible, onClose, form } = this.props;
-    const { officerProps } = this.state
     const { getFieldDecorator } = form;
 
     const items = [{
@@ -373,8 +264,6 @@ class FormModal extends PureComponent {
         },
       ],
     };
-
-
 
 
     return (
