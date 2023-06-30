@@ -37,3 +37,11 @@ export async function findByCode(param) {
   const url = `${SERVER_PATH}/sei-basic/employee/findByCode?code=${param.code}`;
   return request.get(url);
 }
+//-------------------项目start-------------------
+/** 项目保存 */
+export async function projectSave(data) {
+  const url = `${PROJECT_PATH}/strategyProject/save`;
+  return request.post(url, data);
+
+//-------------------项目end---------------------
+}

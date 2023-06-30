@@ -132,7 +132,6 @@ class StrategyHeader extends Component {
         this.dispatchAction({
           type: 'strategyHeader/updateState',
           payload: {
-            modalVisible: false,
             proSubmissionVisible: true,
             editData: row,
           },
@@ -182,7 +181,7 @@ class StrategyHeader extends Component {
 
   handleProSubmissionSave = data => {
     this.dispatchAction({
-      type: 'strategyProject/save',
+      type: 'strategyHeader/projectSave',
       payload: data,
     }).then(res => {
       if (res.success) {
