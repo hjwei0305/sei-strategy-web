@@ -35,7 +35,10 @@ class FormModal extends PureComponent {
         return;
       }
       const params = {};
-      console.log(formData);
+      formData.contacts = editData.strategyProjectDto.contacts;
+      
+      formData.id = editData.strategyProjectDto.id;
+      formData.stage = editData.strategyProjectDto.stage;
       Object.assign(params, formData);
       if (onSave) {
         onSave(params);
@@ -69,7 +72,8 @@ class FormModal extends PureComponent {
   render() {
     const { visible, onClose, editData, projectStyle, form, user, projectLevel } = this.props;
     const { getFieldDecorator } = form;
-    
+  
+    console.log(editData.strategyProjectDto.officers);
     const officerProps = {
       placeholder: '请选择项目负责人',
       width: 600,
@@ -137,8 +141,7 @@ class FormModal extends PureComponent {
       },
     };
 
-    const contact = editData.contacts[0] == null ? {} : editData.contacts[0];
-
+    const contact = editData.strategyProjectDto.contacts == null ? {} : editData.strategyProjectDto.contacts[0];
     const items = [{
       userCode: '380889',
       userName: '苏浠静',
@@ -200,13 +203,7 @@ class FormModal extends PureComponent {
             </div>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3}>工号</Col>
-              <Col span={3}>
-                <FormItem >
-                  {getFieldDecorator('contacts[0].userCode', {
-                    initialValue: contact.userCode,
-                  })(<Input readOnly />)}
-                </FormItem>
-                </Col>
+              <Col span={3}>{contact.userCode}</Col>
               <Col span={3}>模块对接人</Col>
               <Col span={3}>{contact.userName}</Col>
               <Col span={3}>部门</Col>
@@ -227,6 +224,7 @@ class FormModal extends PureComponent {
               <Col span={3}>
                 <FormItem >
                   {getFieldDecorator('officerCodes', {
+                    initialValue: editData.strategyProjectDto.officerCodes,
                   })(<Input readOnly />)}
                 </FormItem>
               </Col>
@@ -234,6 +232,7 @@ class FormModal extends PureComponent {
               <Col span={3}>
                 <FormItem >
                   {getFieldDecorator('officers', {
+                    initialValue: editData.strategyProjectDto.officers,
                   })(<ComboMultiList {...officerProps} />)}
                 </FormItem>
               </Col>
@@ -247,6 +246,7 @@ class FormModal extends PureComponent {
               <Col span={3}>
                 <FormItem >
                   {getFieldDecorator('level', {
+                    initialValue: editData.strategyProjectDto.level,
                   })(<Select
                     placeholder="请选择"
                   >
@@ -258,6 +258,7 @@ class FormModal extends PureComponent {
               <Col span={3}>
                 <FormItem >
                   {getFieldDecorator('style', {
+                    initialValue: editData.strategyProjectDto.style,
                   })(<Select
                     placeholder="请选择"
                   >
@@ -289,6 +290,7 @@ class FormModal extends PureComponent {
               <Col span={9}>
                 <FormItem >
                   {getFieldDecorator('content', {
+                    initialValue: editData.strategyProjectDto.content,
                   })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
@@ -302,6 +304,7 @@ class FormModal extends PureComponent {
               <Col span={9}>
                 <FormItem >
                   {getFieldDecorator('significance', {
+                    initialValue: editData.strategyProjectDto.significance,
                   })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
@@ -309,6 +312,7 @@ class FormModal extends PureComponent {
               <Col span={9} >
                 <FormItem >
                   {getFieldDecorator('target', {
+                    initialValue: editData.strategyProjectDto.target,
                   })(<Input.TextArea style={{ height: '79px' }} placeholder='请输入文字！'/>)}
                 </FormItem>
               </Col>
