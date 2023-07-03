@@ -132,7 +132,6 @@ class StrategyHeader extends Component {
         this.dispatchAction({
           type: 'strategyHeader/updateState',
           payload: {
-            modalVisible: false,
             proSubmissionVisible: true,
             editData: row,
           },
@@ -182,7 +181,7 @@ class StrategyHeader extends Component {
 
   handleProSubmissionSave = data => {
     this.dispatchAction({
-      type: 'strategyProject/save',
+      type: 'strategyHeader/projectSave',
       payload: data,
     }).then(res => {
       if (res.success) {
@@ -305,26 +304,26 @@ handleProSubmissionClose = () => {
       },
       {
         title: '工号',
-        dataIndex: 'userCode',
-        width: 120,
+        dataIndex: 'strategyProjectDto.officerCodes',
+        width: 240,
         required: true,
       },
       {
         title: '项目负责人',
-        dataIndex: 'userName',
-        width: 120,
+        dataIndex: 'strategyProjectDto.officerNames',
+        width: 240,
         required: true,
       },
       {
         title: '职位',
-        dataIndex: 'userPosition',
-        width: 120,
+        dataIndex: 'strategyProjectDto.officerPositions',
+        width: 240,
         required: true,
       },
       {
         title: '关联项目名称',
         dataIndex: 'strategyProjectDto.name',
-        width: 120,
+        width: 240,
         required: true,
       },
       {
@@ -510,7 +509,7 @@ handleProSubmissionClose = () => {
   getProSubmissionProps = () => {
     const { loading, strategyHeader } = this.props;
     const { proSubmissionVisible, editData } = strategyHeader;
-    
+
     return {
       onSave: this.handleProSubmissionSave,
       editData,

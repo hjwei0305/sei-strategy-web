@@ -6,7 +6,7 @@
  */
 import { message } from 'antd';
 import { utils } from 'suid';
-import { del, save,findByPage,findByCode } from './service';
+import { del, save,findByPage,findByCode,projectSave } from './service';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -63,5 +63,21 @@ export default modelExtend(model, {
       }
       return result;
     },
+    // --------------------------      project  start    --------------------------
+    *projectSave({ payload }, { call }) {
+      const result = yield call(projectSave, payload);
+      const { success, message: msg } = result || {};
+
+      message.destroy();
+      if (success) {
+        message.success(msg);
+      } else {
+        message.error(msg);
+      }
+
+      return result;
+    }
+
+    // --------------------------      project  end     --------------------------
   },
 });

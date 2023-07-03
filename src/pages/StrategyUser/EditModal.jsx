@@ -50,7 +50,8 @@ class FormModal extends PureComponent {
       searchProperties: ['userName', 'code'],
       searchPlaceHolder: '根据工号或者姓名搜索！',
       afterClear: () =>form.setFieldsValue({}),
-      afterSelect: item => form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,userId:item.id,
+      afterSelect: item => 
+        form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,userId:item.id,
         userStatue:item.frozen===false?'在职':'离职',}),
       store: {
         type: 'post',
