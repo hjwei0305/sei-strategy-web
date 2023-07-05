@@ -19,7 +19,6 @@ const formItemLayout = {
   },
 };
 
-
 @Form.create()
 
 class FormModal extends PureComponent {
@@ -237,7 +236,7 @@ class FormModal extends PureComponent {
     // feedLines
     let add_obj = [];
     const newObj = this.state.feedLines
-    console.log(newObj)
+
     let key = Math.max.apply(
       Math,
       newObj.map(item => {
@@ -254,18 +253,16 @@ class FormModal extends PureComponent {
       index = 0;
       key = 0;
     }
-    console.log(newObj)
+
     add_obj = newObj.concat({
       index: index + 1,
       key: key + 1,
       correlationCode: '',
-      // correlationName: '',
       department: '',
       perStatus: '',
       id: null
     });
-    console.log(this.state.feedLines)
-    console.log(add_obj)
+    console.log('新增',add_obj)
     this.setState({
       feedLines: add_obj
     })
@@ -282,10 +279,11 @@ class FormModal extends PureComponent {
       feedLines: newObj
     })
 
-    console.log(this.state.feedLines)
+    console.log('删除',this.state.feedLines)
     this.forceUpdate()
   };
 
+  // 获取组件
   getExtableProps = () => {
     return {
       columns: this.state.correlationLine,
@@ -303,7 +301,6 @@ class FormModal extends PureComponent {
 
   render() {
     const { visible, onClose, form } = this.props;
-    // const { officerProps } = this.state
     const { getFieldDecorator } = form;
 
     const items = [{
@@ -371,8 +368,6 @@ class FormModal extends PureComponent {
         },
       ],
     };
-
-
 
 
     return (
