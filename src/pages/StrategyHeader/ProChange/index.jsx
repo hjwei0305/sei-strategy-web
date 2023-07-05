@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
-import { withRouter } from 'umi';
-import { connect } from 'dva';
+// import { withRouter } from 'umi';
+// import { connect } from 'dva';
 import { Input, Col, Row, Select, Radio, Steps, Button, Form } from 'antd';
 import { ExtModal } from 'suid';
 

@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
-import { withRouter } from 'umi';
-import { connect } from 'dva';
-import { Input, Col, Row, Select, Radio, Steps, Button, Calendar, Form } from 'antd';
-import { ExtModal, ComboList, Space } from 'suid';
+import { Input, Col, Row, Select, Button, Form } from 'antd';
+import { ExtModal, ComboList, ExtTable } from 'suid';
 
 import style from './index.less';
 import { constants } from '@/utils';
@@ -25,9 +23,100 @@ class FormModal extends PureComponent {
 
   state = {
     obj: [],
-    formData: {}
+    formData: {},
+    relates: [],
+    correlationLine: [
+      {
+        title: '序号',
+        dataIndex: 'index',
+        width: 250,
+        align: 'center',
+      },
+      {
+        title: '相关方工号',
+        dataIndex: 'userCode',
+        width: 250,
+        align: 'center',
+      },
+      {
+        title: '相关方姓名',
+        dataIndex: 'username',
+        width: 250,
+        align: 'center',
+        render: (_, record) => (
+          <ComboList
+            defaultValue={record.userName}
+            placeholder={'请选择相关人'}
+            name={'followNames'}
+            field={['id', 'code', 'userName']}
+            store={{
+              url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
+              type: 'POST',
+            }}
+            searchPlaceHolder={'搜索框'}
+            ListProps={'vertical'}
+            allowClear
+            remotePaging
+            cascadeParams={
+              {
+                includeFrozen : 'false',
+                includeSubNode : 'true',
+                organizationId : '734FB618-BA26-11EC-9755-0242AC14001A',
+              }
+            }
+            showSearch
+            pagination
+            searchProperties={
+              ['userName', 'code']
+            }
+            afterSelect={item => {
+              this.handleCellSave(item, record);
+            }}
+            reader={{
+              name: 'userName',
+              description: 'organizationName',
+              field: ['id', 'code', 'userName'],
+            }}
+          />
+        )
+      },
+      {
+        title: '部门',
+        dataIndex: 'department',
+        width: 500,
+        align: 'center',
+      },
+      {
+        title: '人员状态',
+        dataIndex: 'userStatue',
+        width: 250,
+        align: 'center',
+      },
+      {
+        title: '操作',
+        key: 'operation',
+        width: 250,
+        dataIndex: 'id',
+        align: 'center',
+        render: (_, record) => (
+          <span>
+            <Button
+              key="del"
+              onClick={() => this.handleDel(record)}
+              type="danger"
+              ghost
+              ignore="true"
+            >
+              删除
+            </Button>
+          </span>
+        ),
+      },
+    ],
+    feedLines: [],
   }
 
+  // 保存当前页面
   handAdd = () => {
     const { form, onSave, editData } = this.props;
     form.validateFields((err, formData) => {
@@ -39,41 +128,101 @@ class FormModal extends PureComponent {
       
       formData.id = editData.strategyProjectDto.id;
       formData.stage = editData.strategyProjectDto.stage;
+      formData.relates = this.state.feedLines;
       Object.assign(params, formData);
       if (onSave) {
         onSave(params);
       }
     });
   };
+
+  // 处理单元格保存
+  handleCellSave = (e, r) => {
+    const row = r;
+    const feed_Lines = this.state.feedLines
+    row.department = e.organizationName
+    row.userCode = e.code
+    row.userStatue = e.frozen === 'true' ? '离职' : '在职'
+    row.userId = e.id
+    row.username = e.userName
+    this.setState({
+      feedLines: feed_Lines
+    })
+    this.forceUpdate();
+  }
   
   //新增关联人行
   addRelatedOne = () => {
     let add_obj = [];
-    let key;
-    if(this.state.obj.length > 0){
-      key = Math.max.apply(Math,this.state.obj.map(item => {
+    const newObj = this.state.feedLines
+    console.log(newObj.length)
+    let key = Math.max.apply(
+      Math,
+      newObj.map(item => {
         return item.key;
-      }
-      ));
-    }else{
-      key = -1;
+      }),
+    );
+    let index = Math.max.apply(
+      Math,
+      newObj.map(item => {
+        return item.index;
+      }),
+    );
+    if (index === -Infinity) {
+      index = 0;
+      key = 0;
     }
-    add_obj = this.state.obj.concat({
+    if (index > 4) {
+      return;
+    }
+    add_obj = newObj.concat({
+      index: index + 1,
       key: key + 1,
-      user_code: '',
-      user_name: '',
+      userCode: '',
       department: '',
-      user_statue: '',
+      userStatue: '',
+      id: '',
+      username: '',
     });
-    this.state.obj = add_obj;
+    this.setState({
+      feedLines: add_obj
+    })
     this.forceUpdate();
   };
+   //删除
+   handleDel = record => {
+    const newObj = []
+    this.state.feedLines.forEach(item => item !== record && newObj.push(item));
+    for (let i = 0; i <= newObj.length - 1; i++) {
+      newObj[i].index = i + 1;
+    }
+    this.setState({
+      feedLines: newObj
+    })
+
+    this.forceUpdate()
+  };
+  // 获取相关方表格属性
+  getExtableProps = () => {
+    return {
+      columns: this.state.correlationLine,
+      bordered: true,
+      refreshButton: 'empty',
+      lineNumber: false,
+      showSearch: false,
+      pagination: false,
+      allowCustomColumns: false,
+      checkbox: false,
+      dataSource: this.state.feedLines,
+      rowKey: 'key',
+    };
+  }
 
   render() {
-    const { visible, onClose, editData, projectStyle, form, user, projectLevel } = this.props;
+    const { visible, onClose, editData, projectStyle, form, projectLevel } = this.props;
     const { getFieldDecorator } = form;
   
-    console.log(editData.strategyProjectDto.officers);
+
     const officerProps = {
       placeholder: '请选择项目负责人',
       width: 600,
@@ -113,33 +262,7 @@ class FormModal extends PureComponent {
       },
     };
 
-    const employeeProps = {
-      placeholder: '根据工号或者姓名搜索！',
-      width: 600,
-      allowClear: true,
-      remotePaging: true,
-      cascadeParams: {
-        includeFrozen: false,
-        includeSubNode: true,
-        organizationId: '734FB618-BA26-11EC-9755-0242AC14001A',
-      },
-      showSearch: true,
-      pagination: true,
-      searchProperties: ['userName', 'code'],
-      searchPlaceHolder: '根据工号或者姓名搜索！',
-      afterClear: () =>form.setFieldsValue({}),
-      afterSelect: item => form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,id:item.id,
-        userStatue:item.frozen===false?'在职':'离职',}),
-      store: {
-        type: 'post',
-        url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
-      },
-      reader: {
-        name: 'userName',
-        description: 'organizationName',
-        field: ['id', 'code', 'userName'],
-      },
-    };
+
 
     const contact = editData.strategyProjectDto.contacts == null ? {} : editData.strategyProjectDto.contacts[0];
     const items = [{
@@ -161,8 +284,8 @@ class FormModal extends PureComponent {
       zhuangtai: '离职'
     }];
 
-    const officers = [];
 
+    
     const Option = Select.Option;
 
     const moduleArray = [];
@@ -176,6 +299,18 @@ class FormModal extends PureComponent {
     for (let i = 0; i < projectLevel.length; i++) {
       projectLevelArray.push(<Option key={projectLevel[i].level}>{projectLevel[i].level}</Option>);
     }
+
+    const feed_lines666 = editData.strategyProjectDto.relates == null ? [] : editData.strategyProjectDto.relates;
+    if (feed_lines666.length > 0) {
+      for(let i=0;i<feed_lines666.length;i++){
+        feed_lines666[i].index = i+1;
+        feed_lines666[i].key = i+1;
+      }
+    }
+
+    this.setState({
+      feedLines: feed_lines666
+    })
 
     const Data = new Date().toLocaleString();
 
@@ -324,35 +459,28 @@ class FormModal extends PureComponent {
               <span className={style.titleBlue}> </span>
               <div className={style.titleText}>相关方</div>
               <div style={{ textAlign: 'left', marginBottom: '10px' }}>
-                <Space>
-                  <Button key="add" icon="plus" type="primary" onClick={this.addRelatedOne} ignore="true">
+                  <Button 
+                    key="add" 
+                    icon="plus" 
+                    type="primary" 
+                    onClick={this.addRelatedOne} 
+                    ignore="true">
                       新增行
                   </Button>
-                </Space>
+                  
               </div>
-            </div>
-            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col span={2}>序号</Col>
-              <Col span={5}>相关方工号</Col>
-              <Col span={5}>相关方姓名</Col>
-              <Col span={5}>部门</Col>
-              <Col span={4}>人员状态</Col>
-              <Col span={3}>操作</Col>
-            </Row>
-            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col span={2}>
-                <FormItem >
-                  {getFieldDecorator('relatedOne', {
-                    initialValue: 1,
-                  })(<Input readOnly/>)}
-                </FormItem>
+
+            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="space-around"
+              style={{ height: "350px" }}>
+                <Col span={24}>
+                  <ExtTable
+                    onTableRef={inst => (this.tableRef = inst)}
+                    {...this.getExtableProps()}
+                />
               </Col>
-              <Col span={5}><Input /></Col>
-              <Col span={5}><Input /></Col>
-              <Col span={5}><Input /></Col>
-              <Col span={4}><Input /></Col>
-              <Col span={3}><Input /></Col>
+
             </Row>
+            </div>
 
           </div>
 

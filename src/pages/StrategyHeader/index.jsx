@@ -516,7 +516,6 @@ handleProSubmissionClose = () => {
       visible: proSubmissionVisible,
       onClose: this.handleProSubmissionClose,
       saving: loading.effects['strategyHeader/save'],
-      user: this.state.user,
       projectStyle: this.state.projectStyle,
       projectLevel: this.state.projectLevel,
     };

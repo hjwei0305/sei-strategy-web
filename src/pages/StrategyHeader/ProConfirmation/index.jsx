@@ -1,8 +1,6 @@
 // 项目确认页面 ProConfirmation
 import React, { PureComponent } from 'react';
-import { withRouter } from 'umi';
-import { connect } from 'dva';
-import { Input, Col, Row, Select, Upload, Steps, Button, Icon, Form, DatePicker, InputNumber } from 'antd';
+import { Input, Col, Row, Select, Upload, Steps, Button, Icon, Form, DatePicker } from 'antd';
 import { ComboList, ExtModal, ExtTable } from 'suid';
 import style from './index.less';
 
@@ -53,10 +51,10 @@ class FormModal extends PureComponent {
       afterClear: (item) => {
       },
       afterSelect: item => {
-        let codeStr = '';
-        for (let i = 0; i < item.length; i++) {
-          codeStr += item[i].code + ',';
-        }
+        // let codeStr = '';
+        // for (let i = 0; i < item.length; i++) {
+        //   codeStr += item[i].code + ',';
+        // }
         // form.setFieldsValue({ officerCodes: codeStr });
       },
       reader: {
@@ -206,10 +204,10 @@ class FormModal extends PureComponent {
       afterClear: (item) => {
       },
       afterSelect: item => {
-        let codeStr = '';
-        for (let i = 0; i < item.length; i++) {
-          codeStr += item[i].code + ',';
-        }
+        // let codeStr = '';
+        // for (let i = 0; i < item.length; i++) {
+        //   codeStr += item[i].code + ',';
+        // }
         // form.setFieldsValue({ officerCodes: codeStr });
       },
       reader: {
@@ -305,7 +303,7 @@ class FormModal extends PureComponent {
 
   render() {
     const { visible, onClose, form } = this.props;
-    const { officerProps } = this.state
+    // const { officerProps } = this.state
     const { getFieldDecorator } = form;
 
     const items = [{
@@ -510,14 +508,6 @@ class FormModal extends PureComponent {
                 新增行
               </Button>
             </div>
-            {/* <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col span={2}>序号</Col>
-              <Col span={5}>相关方工号</Col>
-              <Col span={5}>相关方姓名</Col>
-              <Col span={5}>部门</Col>
-              <Col span={4}>人员状态</Col>
-              <Col span={3}>操作</Col>
-            </Row> */}
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="space-around"
               style={{ height: "250px" }}>
