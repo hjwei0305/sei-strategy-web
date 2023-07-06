@@ -335,7 +335,7 @@ class StrategyUser extends Component {
       },
       {
         title: '人事状态',
-        dataIndex: 'userStatue',
+        dataIndex: 'userState',
         width: 150,
         required: true,
       },

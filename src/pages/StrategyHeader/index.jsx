@@ -37,6 +37,9 @@ class StrategyHeader extends Component {
     this.initProjectLevel();
   };
 
+  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++     页面基础功能 start      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  // 获取表格过滤条件
   findByCode = () => {
     const { dispatch } = this.props;
     const code = getCurrentUser().account;
@@ -162,84 +165,6 @@ class StrategyHeader extends Component {
     }
   };
 
-  handleSave = data => {
-    this.dispatchAction({
-      type: 'strategyHeader/save',
-      payload: data,
-    }).then(res => {
-      if (res.success) {
-        this.dispatchAction({
-          type: 'strategyHeader/updateState',
-          payload: {
-            modalVisible: false,
-          },
-        });
-        this.findByPage();
-      }
-    });
-  };
-
-  handleProSubmissionSave = data => {
-    this.dispatchAction({
-      type: 'strategyHeader/projectSave',
-      payload: data,
-    }).then(res => {
-      if (res.success) {
-        this.findByPage();
-      }
-    });
-  };
-
-  addProject = data => {
-    data.strategyAnalyzeBillDto.projectDtoList.push({
-      name: '',
-      index: data.strategyAnalyzeBillDto.projectDtoList.length.length + 1,
-    });
-    this.forceUpdate();
-  };
-
-  handleClose = () => {
-    this.dispatchAction({
-      type: 'strategyHeader/updateState',
-      payload: {
-        modalVisible: false,
-        editData: null,
-      },
-    });
-  };
-
-// 提交项目
-handleProSubmissionClose = () => {
-  this.dispatchAction({
-    type: 'strategyHeader/updateState',
-    payload: {
-      proSubmissionVisible: false,
-      editData: null,
-    },
-  });
-};
-
-  // 项目确认表
-  handleProConfirmationClose = () => {
-    this.dispatchAction({
-      type: 'strategyHeader/updateState',
-      payload: {
-        proConfirmationVisible: false,
-        editData: null,
-      },
-    });
-  };
-  // 项目变更表
-  handleProChangeClose = () => {
-    this.dispatchAction({
-      type: 'strategyHeader/updateState',
-      payload: {
-        proChangeVisible: false,
-        editData: null,
-      },
-    });
-  };
-
   getTableFilters = () => {
     const filters = [];
     if (this.state.moduleFilter) {
@@ -286,6 +211,107 @@ handleProSubmissionClose = () => {
       }
     });
   };
+
+//---------------------------------------------------------------     页面基础功能 end       ------------------------------------------------------------------------
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++     关联项目 start       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  
+//保存经营策略与项目关联
+  handleSave = data => {
+    this.dispatchAction({
+      type: 'strategyHeader/save',
+      payload: data,
+    }).then(res => {
+      if (res.success) {
+        this.dispatchAction({
+          type: 'strategyHeader/updateState',
+          payload: {
+            modalVisible: false,
+          },
+        });
+        this.findByPage();
+      }
+    });
+  };
+
+  addProject = data => {
+    data.strategyAnalyzeBillDto.projectDtoList.push({
+      name: '',
+      index: data.strategyAnalyzeBillDto.projectDtoList.length.length + 1,
+    });
+    this.forceUpdate();
+  };
+
+  handleClose = () => {
+    debugger;
+    this.dispatchAction({
+      type: 'strategyHeader/updateState',
+      payload: {
+        modalVisible: false,
+        editData: null,
+      },
+    });
+  };
+
+//---------------------------------------------------------------     关联项目 end       ------------------------------------------------------------------------
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    项目提交 start       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// 保存项目
+handleProSubmissionSave = data => {
+  this.dispatchAction({
+    type: 'strategyHeader/projectSave',
+    payload: data,
+  }).then(res => {
+    if (res.success) {
+      this.handleProSubmissionClose();
+      this.findByPage();
+    }
+  });
+};
+
+// 关闭窗口
+handleProSubmissionClose = () => {
+  this.dispatchAction({
+    type: 'strategyHeader/updateState',
+    payload: {
+      proSubmissionVisible: false,
+      editData: null,
+    },
+  });
+};
+
+//---------------------------------------------------------------     项目提交 end       ------------------------------------------------------------------------
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++     项目确认 start      ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 项目确认表
+  handleProConfirmationClose = () => {
+    this.dispatchAction({
+      type: 'strategyHeader/updateState',
+      payload: {
+        proConfirmationVisible: false,
+        editData: null,
+      },
+    });
+  };
+
+//---------------------------------------------------------------     项目确认 end       ------------------------------------------------------------------------
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++     项目变更 start       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 项目变更表
+  handleProChangeClose = () => {
+    this.dispatchAction({
+      type: 'strategyHeader/updateState',
+      payload: {
+        proChangeVisible: false,
+        editData: null,
+      },
+    });
+  };
+//---------------------------------------------------------------     项目变更 end       ------------------------------------------------------------------------
+
+
+
 
 
   getExtableProps = () => {

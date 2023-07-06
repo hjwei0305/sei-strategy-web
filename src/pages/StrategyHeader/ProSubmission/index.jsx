@@ -21,6 +21,14 @@ const formItemLayout = {
 
 class FormModal extends PureComponent {
 
+  // 挂载后立即调用
+  componentDidMount() {
+    const { editData } = this.props;
+    this.setState({
+      reltesFeedLines: editData.strategyProjectDto.relates,
+    });
+  }
+
   state = {
     obj: [],
     formData: {},
@@ -40,12 +48,13 @@ class FormModal extends PureComponent {
       },
       {
         title: '相关方姓名',
-        dataIndex: 'username',
+        dataIndex: 'userName',
+        key: 'userName',
         width: 250,
         align: 'center',
         render: (_, record) => (
           <ComboList
-            defaultValue={record.userName}
+            value={record.userName}
             placeholder={'请选择相关人'}
             name={'followNames'}
             field={['id', 'code', 'userName']}
@@ -70,7 +79,8 @@ class FormModal extends PureComponent {
               ['userName', 'code']
             }
             afterSelect={item => {
-              this.handleCellSave(item, record);
+              this.fillRelateCell(item, record);
+
             }}
             reader={{
               name: 'userName',
@@ -88,7 +98,7 @@ class FormModal extends PureComponent {
       },
       {
         title: '人员状态',
-        dataIndex: 'userStatue',
+        dataIndex: 'userState',
         width: 250,
         align: 'center',
       },
@@ -102,7 +112,7 @@ class FormModal extends PureComponent {
           <span>
             <Button
               key="del"
-              onClick={() => this.handleDel(record)}
+              onClick={() => this.delRelatedOne(record)}
               type="danger"
               ghost
               ignore="true"
@@ -113,11 +123,11 @@ class FormModal extends PureComponent {
         ),
       },
     ],
-    feedLines: [],
+    reltesFeedLines: [],
   }
 
   // 保存当前页面
-  handAdd = () => {
+  handSave = () => {
     const { form, onSave, editData } = this.props;
     form.validateFields((err, formData) => {
       if (err) {
@@ -125,10 +135,10 @@ class FormModal extends PureComponent {
       }
       const params = {};
       formData.contacts = editData.strategyProjectDto.contacts;
-      
+
       formData.id = editData.strategyProjectDto.id;
       formData.stage = editData.strategyProjectDto.stage;
-      formData.relates = this.state.feedLines;
+      formData.relates = this.state.reltesFeedLines;
       Object.assign(params, formData);
       if (onSave) {
         onSave(params);
@@ -137,25 +147,26 @@ class FormModal extends PureComponent {
   };
 
   // 处理单元格保存
-  handleCellSave = (e, r) => {
+  fillRelateCell = (e, r) => {
+    debugger
     const row = r;
-    const feed_Lines = this.state.feedLines
+    const feed_Lines = this.state.reltesFeedLines
     row.department = e.organizationName
     row.userCode = e.code
-    row.userStatue = e.frozen === 'true' ? '离职' : '在职'
+    row.userState = e.frozen === 'true' ? '离职' : '在职'
     row.userId = e.id
-    row.username = e.userName
+    row.userName = e.userName
     this.setState({
-      feedLines: feed_Lines
+      reltesFeedLines: feed_Lines
     })
-    this.forceUpdate();
-  }
-  
+
+    this.forceUpdate()
+  };
+
   //新增关联人行
   addRelatedOne = () => {
-    let add_obj = [];
-    const newObj = this.state.feedLines
-    console.log(newObj.length)
+    let newObj = this.state.reltesFeedLines
+
     let key = Math.max.apply(
       Math,
       newObj.map(item => {
@@ -175,35 +186,38 @@ class FormModal extends PureComponent {
     if (index > 4) {
       return;
     }
-    add_obj = newObj.concat({
+    const add_obj = newObj.concat({
       index: index + 1,
       key: key + 1,
       userCode: '',
       department: '',
-      userStatue: '',
+      userState: '',
       id: '',
       username: '',
     });
     this.setState({
-      feedLines: add_obj
+      reltesFeedLines: add_obj
     })
-    this.forceUpdate();
+    this.forceUpdate()
   };
    //删除
-   handleDel = record => {
+   delRelatedOne = record => {
+
+    console.log(record)
     const newObj = []
-    this.state.feedLines.forEach(item => item !== record && newObj.push(item));
+    this.state.reltesFeedLines.forEach(item => item.index !== record.index && newObj.push(item));
     for (let i = 0; i <= newObj.length - 1; i++) {
       newObj[i].index = i + 1;
     }
     this.setState({
-      feedLines: newObj
+      reltesFeedLines: newObj
     })
-
+    console.log(this.state.reltesFeedLines)
     this.forceUpdate()
   };
-  // 获取相关方表格属性
-  getExtableProps = () => {
+
+  // 获取表格属性
+  getRelatedExtableProps = () => {
     return {
       columns: this.state.correlationLine,
       bordered: true,
@@ -213,16 +227,17 @@ class FormModal extends PureComponent {
       pagination: false,
       allowCustomColumns: false,
       checkbox: false,
-      dataSource: this.state.feedLines,
+      dataSource: this.state.reltesFeedLines,
       rowKey: 'key',
     };
-  }
+  };
 
   render() {
     const { visible, onClose, editData, projectStyle, form, projectLevel } = this.props;
+    const {reltesFeedLines } = this.state;
     const { getFieldDecorator } = form;
-  
 
+    // 项目负责人
     const officerProps = {
       placeholder: '请选择项目负责人',
       width: 600,
@@ -263,7 +278,7 @@ class FormModal extends PureComponent {
     };
 
 
-
+    // 项目联系人
     const contact = editData.strategyProjectDto.contacts == null ? {} : editData.strategyProjectDto.contacts[0];
     const items = [{
       userCode: '380889',
@@ -285,7 +300,7 @@ class FormModal extends PureComponent {
     }];
 
 
-    
+
     const Option = Select.Option;
 
     const moduleArray = [];
@@ -300,21 +315,30 @@ class FormModal extends PureComponent {
       projectLevelArray.push(<Option key={projectLevel[i].level}>{projectLevel[i].level}</Option>);
     }
 
-    const feed_lines666 = editData.strategyProjectDto.relates == null ? [] : editData.strategyProjectDto.relates;
-    if (feed_lines666.length > 0) {
-      for(let i=0;i<feed_lines666.length;i++){
-        feed_lines666[i].index = i+1;
-        feed_lines666[i].key = i+1;
-      }
-    }
-
-    this.setState({
-      feedLines: feed_lines666
-    })
-
     const Data = new Date().toLocaleString();
 
     const year = new Date().getFullYear();
+
+    const feed_lines666 =  reltesFeedLines;
+
+
+    const temp = [];
+
+
+    feed_lines666.forEach((item, index) => {
+      temp.push({
+        index: index + 1,
+        key: index + 1,
+        userCode: item.userCode,
+        department: item.department,
+        userState: item.userState,
+        id: item.id,
+        userName: item.userName
+      })
+    });
+
+    this.state.reltesFeedLines = temp;
+
 
     return (
       <ExtModal
@@ -344,7 +368,7 @@ class FormModal extends PureComponent {
               <Col span={3}>部门</Col>
               <Col span={3}>{contact.department}</Col>
               <Col span={3}>人员状态</Col>
-              <Col span={3}>{contact.userStatue}</Col>
+              <Col span={3}>{contact.userState}</Col>
             </Row>
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
               <Col span={3} style={{ color: '#F56C6C' }}>*项目名称</Col>
@@ -459,15 +483,14 @@ class FormModal extends PureComponent {
               <span className={style.titleBlue}> </span>
               <div className={style.titleText}>相关方</div>
               <div style={{ textAlign: 'left', marginBottom: '10px' }}>
-                  <Button 
-                    key="add" 
-                    icon="plus" 
-                    type="primary" 
-                    onClick={this.addRelatedOne} 
+                  <Button
+                    key="add"
+                    icon="plus"
+                    type="primary"
+                    onClick={this.addRelatedOne}
                     ignore="true">
                       新增行
                   </Button>
-                  
               </div>
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} justify="space-around"
@@ -475,10 +498,9 @@ class FormModal extends PureComponent {
                 <Col span={24}>
                   <ExtTable
                     onTableRef={inst => (this.tableRef = inst)}
-                    {...this.getExtableProps()}
+                    {...this.getRelatedExtableProps()}
                 />
               </Col>
-
             </Row>
             </div>
 
@@ -542,7 +564,7 @@ class FormModal extends PureComponent {
           >
             打印
           </Button>
-          <Button onClick={this.handAdd} type="primary" size="large" style={{ margin: '20px', background: '#909399', border: '1px solid #909399' }}>
+          <Button onClick={this.handSave} type="primary" size="large" style={{ margin: '20px', background: '#909399', border: '1px solid #909399' }}>
             保存
           </Button>
           <Button type="primary" size="large" style={{ margin: '20px' }}>

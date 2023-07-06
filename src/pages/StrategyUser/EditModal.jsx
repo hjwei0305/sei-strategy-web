@@ -50,9 +50,9 @@ class FormModal extends PureComponent {
       searchProperties: ['userName', 'code'],
       searchPlaceHolder: '根据工号或者姓名搜索！',
       afterClear: () =>form.setFieldsValue({}),
-      afterSelect: item => 
+      afterSelect: item =>
         form.setFieldsValue({userCode:item.code,userName:item.userName,department:item.organizationName,userId:item.id,
-        userStatue:item.frozen===false?'在职':'离职',}),
+        userState:item.frozen===false?'在职':'离职',}),
       store: {
         type: 'post',
         url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
@@ -206,8 +206,8 @@ class FormModal extends PureComponent {
             })(<Input disabled={!saving || !editData} />)}
           </FormItem>
           <FormItem label="人事状态">
-            {getFieldDecorator('userStatue', {
-              initialValue: editData && editData.userStatue,
+            {getFieldDecorator('userState', {
+              initialValue: editData && editData.userState,
               rules: [
                 {
                   required: true,
