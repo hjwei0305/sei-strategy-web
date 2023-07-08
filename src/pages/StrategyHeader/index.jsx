@@ -26,6 +26,20 @@ class StrategyHeader extends Component {
     user: null,
     projectStyle: [],
     projectLevel: [],
+    monthList: [
+      {'id':1,'name':'1月','value':'1'},
+      {'id':2,'name':'2月','value':'2'},
+      {'id':3,'name':'3月','value':'3'},
+      {'id':4,'name':'4月','value':'4'},
+      {'id':5,'name':'5月','value':'5'},
+      {'id':6,'name':'6月','value':'6'},
+      {'id':7,'name':'7月','value':'7'},
+      {'id':8,'name':'8月','value':'8'},
+      {'id':9,'name':'9月','value':'9'},
+      {'id':10,'name':'10月','value':'10'},
+      {'id':11,'name':'11月','value':'11'},
+      {'id':12,'name':'12月','value':'12'},
+    ],
   };
 
   constructor(prop) {
@@ -243,7 +257,7 @@ class StrategyHeader extends Component {
   };
 
   handleClose = () => {
-    debugger;
+
     this.dispatchAction({
       type: 'strategyHeader/updateState',
       payload: {
@@ -253,9 +267,9 @@ class StrategyHeader extends Component {
     });
   };
 
-//---------------------------------------------------------------     关联项目 end       ------------------------------------------------------------------------
+//---------------------------------------------------------------     关联项目 end       ------------------------------------------------------------------
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    项目提交 start       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    项目提交 start     ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // 保存项目
 handleProSubmissionSave = data => {
@@ -544,6 +558,7 @@ handleProSubmissionClose = () => {
       saving: loading.effects['strategyHeader/save'],
       projectStyle: this.state.projectStyle,
       projectLevel: this.state.projectLevel,
+      monthList: this.state.monthList,
     };
   };
   // 项目确认表

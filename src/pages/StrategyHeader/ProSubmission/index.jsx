@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { Input, Col, Row, Select, Button, Form } from 'antd';
-import { ExtModal, ComboList, ExtTable } from 'suid';
-
+import { Input, Col, Row, Select, Button, Form, DatePicker } from 'antd';
+import { ExtModal, ComboList, ExtTable  } from 'suid';
+import moment from 'moment';
 import style from './index.less';
 import { constants } from '@/utils';
 const { SERVER_PATH } = constants;
@@ -23,9 +23,11 @@ class FormModal extends PureComponent {
 
   // 挂载后立即调用
   componentDidMount() {
-    const { editData } = this.props;
+    const { editData,monthList } = this.props;
     this.setState({
       reltesFeedLines: editData.strategyProjectDto.relates,
+      plans: editData.strategyProjectDto.plans,
+      monthList: monthList,
     });
   }
 
@@ -33,6 +35,8 @@ class FormModal extends PureComponent {
     obj: [],
     formData: {},
     relates: [],
+    reltesFeedLines: [],
+    plans: [],
     correlationLine: [
       {
         title: '序号',
@@ -123,7 +127,150 @@ class FormModal extends PureComponent {
         ),
       },
     ],
-    reltesFeedLines: [],
+    actionsLine: [
+      {
+        title: '序号',
+        dataIndex: 'index',
+        width: 80,
+        align: 'center',
+      },
+      {
+        title: '操作',
+        key: 'operation',
+        width: 250,
+        dataIndex: 'id',
+        align: 'center',
+        render: (_, record) => (
+          <span>
+            <Button
+              key="del"
+              onClick={() => this.delAcction(record)}
+              type="danger"
+              ghost
+              ignore="true"
+            >
+              删除
+            </Button>
+          </span>
+        ),
+      },
+      {
+        title: '月份',
+        dataIndex: 'month',
+        width: 250,
+        align: 'center',
+        render: (_,record) => (
+          <ComboList
+            showSearch={false}
+            dataSource={this.state.monthList}
+            pagination={false}
+            value={record.month+'月'}
+            reader={
+              {
+                name:'name',
+                value:'value'
+              }}
+            afterSelect={item => {
+              this.handleCellSave(item.value, record, 'month');
+
+            }}
+          />
+        )
+
+      },
+      {
+        title: '里程碑事件',
+        dataIndex: 'milestone',
+        width: 250,
+        align: 'center',
+        render: (_, record) => (
+          <Input
+          defaultValue={record.milestone}
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'milestone') }} />
+        )
+      },
+      {
+        title: '责任人',
+        dataIndex: 'userName',
+        key: 'userName',
+        width: 250,
+        align: 'center',
+        render: (_, record) => (
+          <ComboList
+            value={record.userName}
+            placeholder={'请选择责任人'}
+            name={'followNames'}
+            field={['id', 'code', 'userName']}
+            store={{
+              url: `${SERVER_PATH}/sei-basic/employee/queryEmployees`,
+              type: 'POST',
+            }}
+            searchPlaceHolder={'搜索框'}
+            ListProps={'vertical'}
+            allowClear
+            remotePaging
+            cascadeParams={
+              {
+                includeFrozen : 'false',
+                includeSubNode : 'true',
+                organizationId : '734FB618-BA26-11EC-9755-0242AC14001A',
+              }
+            }
+            showSearch
+            pagination
+            searchProperties={
+              ['userName', 'code']
+            }
+            afterSelect={item => {
+              record.userName = item.userName
+              record.userCode = item.code
+              const feed_Lines = this.state.plans
+              feed_Lines[record.key - 1] = record
+              this.setState({
+                plans: feed_Lines
+              })
+            }}
+            reader={{
+              name: 'userName',
+              description: 'organizationName',
+              field: ['id', 'code', 'userName'],
+            }}
+          />
+        )
+      },
+      {
+        title: '预计完成时间',
+        dataIndex: 'estimateDate',
+        width: 250,
+        align: 'center',
+        render: (_,record) => (
+          <DatePicker allowClear onBlur={e => { this.handleCellSave(e.target.value, record, 'estimateDate') }}
+          defaultValue={record.estimateDate === null ? null : moment(record.estimateDate, 'YYYY-MM-DD')}/>
+          )
+      },
+      {
+        title: '交付物',
+        dataIndex: 'deliverable',
+        width: 250,
+        align: 'center',
+        render: (_, record) => (
+          <Input defaultValue={record.deliverable}
+            onBlur={e => { this.handleCellSave(e.target.value, record, 'deliverable') }} />
+        )
+      },
+      {
+        title: '交付物是否涉及财务数据',
+        dataIndex: 'isFinancial',
+        width: 250,
+        align: 'center',
+        render: (_, record) => (
+          <Select defaultValue={record.isFinancial} onSelect={e => { this.handleCellSave(e, record, 'isFinancial') }}>
+            <Select.Option value="1">是</Select.Option>
+            <Select.Option value="0">否</Select.Option>
+          </Select>
+        )
+      }
+    ],
   }
 
   // 保存当前页面
@@ -135,20 +282,22 @@ class FormModal extends PureComponent {
       }
       const params = {};
       formData.contacts = editData.strategyProjectDto.contacts;
-
+      debugger
       formData.id = editData.strategyProjectDto.id;
       formData.stage = editData.strategyProjectDto.stage;
       formData.relates = this.state.reltesFeedLines;
+      formData.plans = this.state.plans;
       Object.assign(params, formData);
+      console.log(formData);
       if (onSave) {
         onSave(params);
       }
     });
   };
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++   相关方  start  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // 处理单元格保存
   fillRelateCell = (e, r) => {
-    debugger
+
     const row = r;
     const feed_Lines = this.state.reltesFeedLines
     row.department = e.organizationName
@@ -201,9 +350,9 @@ class FormModal extends PureComponent {
     this.forceUpdate()
   };
    //删除
-   delRelatedOne = record => {
+  delRelatedOne = record => {
 
-    console.log(record)
+
     const newObj = []
     this.state.reltesFeedLines.forEach(item => item.index !== record.index && newObj.push(item));
     for (let i = 0; i <= newObj.length - 1; i++) {
@@ -212,11 +361,11 @@ class FormModal extends PureComponent {
     this.setState({
       reltesFeedLines: newObj
     })
-    console.log(this.state.reltesFeedLines)
+
     this.forceUpdate()
   };
 
-  // 获取表格属性
+  // 获取相关人员表格属性
   getRelatedExtableProps = () => {
     return {
       columns: this.state.correlationLine,
@@ -232,9 +381,95 @@ class FormModal extends PureComponent {
     };
   };
 
+// -----------------------------------------------------------    相关方  end    --------------------------------------------------------------------------
+
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++   行动计划  start  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+  // 处理单元格保存
+  handleCellSave = (e, r, field) => {
+    const row = r;
+    row[field] = e
+    const feed_Lines = this.state.plans
+    feed_Lines[r.key - 1] = row
+    this.setState({
+      plans: feed_Lines
+    })
+  }
+
+  addActions = () => {
+
+    let newObj = this.state.plans
+
+    let key = Math.max.apply(
+      Math,
+      newObj.map(item => {
+        return item.key;
+      }),
+    );
+    let index = Math.max.apply(
+      Math,
+      newObj.map(item => {
+        return item.index;
+      }),
+    );
+    if (index === -Infinity) {
+      index = 0;
+      key = 0;
+    }
+    const add_obj = newObj.concat({
+      index: index + 1,
+      key: key + 1,
+      month: '',
+      milestone: '',
+      userName: '',
+      userCode: '',
+      estimateDate: '',
+      deliverable: '',
+      isFinancial: '',
+    });
+    this.setState({
+      plans: add_obj
+    })
+    this.forceUpdate()
+  }
+
+    //删除
+  delAcction = record => {
+
+    const newObj = []
+    this.state.plans.forEach(item => item.index !== record.index && newObj.push(item));
+    for (let i = 0; i <= newObj.length - 1; i++) {
+      newObj[i].index = i + 1;
+    }
+    this.setState({
+      plans: newObj
+    })
+
+    this.forceUpdate()
+  };
+
+  // 获取计划表格属性
+  getPlansProps = () => {
+    return {
+      columns: this.state.actionsLine,
+      bordered: true,
+      refreshButton: 'empty',
+      lineNumber: false,
+      showSearch: false,
+      pagination: false,
+      allowCustomColumns: false,
+      checkbox: false,
+      dataSource: this.state.plans,
+      rowKey: 'key',
+    };
+  };
+
+//  -----------------------------------------------------------   行动计划  end    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
   render() {
     const { visible, onClose, editData, projectStyle, form, projectLevel } = this.props;
-    const {reltesFeedLines } = this.state;
+    const {reltesFeedLines, plans } = this.state;
     const { getFieldDecorator } = form;
 
     // 项目负责人
@@ -280,24 +515,7 @@ class FormModal extends PureComponent {
 
     // 项目联系人
     const contact = editData.strategyProjectDto.contacts == null ? {} : editData.strategyProjectDto.contacts[0];
-    const items = [{
-      userCode: '380889',
-      userName: '苏浠静',
-      bumen: '数字化',
-      zhuangtai: '在职'
-    },
-    {
-      userCode: '456355',
-      userName: '你妹',
-      bumen: '靠',
-      zhuangtai: '在职'
-    },
-    {
-      userCode: '551225',
-      userName: '傻逼',
-      bumen: '真的傻逼',
-      zhuangtai: '离职'
-    }];
+
 
 
 
@@ -339,6 +557,26 @@ class FormModal extends PureComponent {
 
     this.state.reltesFeedLines = temp;
 
+
+    const feed_plans = plans;
+
+    const temp2 = [];
+
+    feed_plans.forEach((item, index) => {
+      temp2.push({
+        index: index + 1,
+        key: index + 1,
+        month: item.month,
+        milestone: item.milestone,
+        userName: item.userName,
+        userCode: item.userCode,
+        estimateDate: item.estimateDate,
+        deliverable: item.deliverable,
+        isFinancial: item.isFinancial,
+      })
+    })
+
+    this.state.plans = temp2;
 
     return (
       <ExtModal
@@ -519,6 +757,7 @@ class FormModal extends PureComponent {
                 type="primary"
                 size="large"
                 style={{ marginRight: '20px', background: '#67C23A', border: '1px solid #67C23A' }}
+                onClick={this.addActions}
               >
                 新建
               </Button>
@@ -526,28 +765,17 @@ class FormModal extends PureComponent {
                 导入
               </Button>
             </div>
-            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-              <Col span={3}>序号</Col>
-              <Col span={3}>操作</Col>
-              <Col span={3}>月份</Col>
-              <Col span={3}>*里程碑事件</Col>
-              <Col span={3}>*责任人</Col>
-              <Col span={3}>*预计完成时间</Col>
-              <Col span={3}>*交付物</Col>
-              <Col span={3}>*交付物是否设计财务数据</Col>
+
+            <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}justify="space-around"
+              style={{ height: "350px" }}>
+              <Col span={24}>
+                <ExtTable
+                  onTableRef={inst => (this.tableRef = inst)}
+                  {...this.getPlansProps()}
+              />
+              </Col>
             </Row>
-            {items.map((item, index) => (
-              <Row key={index} align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                <Col span={3}>{index + 1}</Col>
-                <Col span={3}>{item.userCode}</Col>
-                <Col span={3}>{item.userName}</Col>
-                <Col span={3}>{item.bumen}</Col>
-                <Col span={3}>{item.zhuangtai}</Col>
-                <Col span={3}>操作</Col>
-                <Col span={3}>*交付物</Col>
-                <Col span={3}>*交付物是否设计财务数据</Col>
-              </Row>
-            ))}
+
           </div>
         </Form>
 
