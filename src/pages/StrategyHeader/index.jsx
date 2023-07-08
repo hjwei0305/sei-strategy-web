@@ -229,7 +229,7 @@ class StrategyHeader extends Component {
 //---------------------------------------------------------------     页面基础功能 end       ------------------------------------------------------------------------
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++     关联项目 start       ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  
+
 //保存经营策略与项目关联
   handleSave = data => {
     this.dispatchAction({
@@ -294,6 +294,29 @@ handleProSubmissionClose = () => {
     },
   });
 };
+
+
+downPlansTemplate = () => {
+  this.dispatchAction({
+    type: 'strategyHeader/downPlansTemplate',
+    payload: {
+    }
+  });
+}
+
+uploadStrategyProjectPlans = (file) => {
+  debugger;
+  this.dispatchAction({
+    type: 'strategyHeader/uploadStrategyProjectPlans',
+    payload: {
+      file
+    }
+  }).then(res => {
+    if (res.success) {
+      this.findByPage();
+    }
+  });
+}
 
 //---------------------------------------------------------------     项目提交 end       ------------------------------------------------------------------------
 
@@ -559,6 +582,8 @@ handleProSubmissionClose = () => {
       projectStyle: this.state.projectStyle,
       projectLevel: this.state.projectLevel,
       monthList: this.state.monthList,
+      downPlansTemplate: this.downPlansTemplate,
+      uploadStrategyProjectPlans: this.uploadStrategyProjectPlans,
     };
   };
   // 项目确认表

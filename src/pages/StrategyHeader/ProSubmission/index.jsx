@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Input, Col, Row, Select, Button, Form, DatePicker } from 'antd';
-import { ExtModal, ComboList, ExtTable  } from 'suid';
+import { ExtModal, ComboList, ExtTable, DataImport  } from 'suid';
 import moment from 'moment';
 import style from './index.less';
 import { constants } from '@/utils';
@@ -164,7 +164,7 @@ class FormModal extends PureComponent {
             showSearch={false}
             dataSource={this.state.monthList}
             pagination={false}
-            value={record.month+'月'}
+            value={( record && record.month === null ) ? null : (record.month+'月')}
             reader={
               {
                 name:'name',
@@ -245,7 +245,8 @@ class FormModal extends PureComponent {
         align: 'center',
         render: (_,record) => (
           <DatePicker allowClear onBlur={e => { this.handleCellSave(e.target.value, record, 'estimateDate') }}
-          defaultValue={record.estimateDate === null ? null : moment(record.estimateDate, 'YYYY-MM-DD')}/>
+            defaultValue={(record || record.estimateDate === null) ? moment(new Date(),'YYYY-MM-DD') : moment(record.estimateDate, 'YYYY-MM-DD')}
+          />
           )
       },
       {
@@ -294,6 +295,19 @@ class FormModal extends PureComponent {
       }
     });
   };
+
+  submit = () => {
+    console.log("676767");
+  }
+
+  downLoad = () => {
+    console.log("38383838")
+  }
+
+  print = () => {
+    console.log("378378")
+  }
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++   相关方  start  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // 处理单元格保存
   fillRelateCell = (e, r) => {
@@ -464,6 +478,16 @@ class FormModal extends PureComponent {
       rowKey: 'key',
     };
   };
+
+  downPlansTemplate = () => {
+    const {downPlansTemplate} = this.props;
+    downPlansTemplate();
+  }
+
+  importPlans = () => {
+    const {uploadStrategyProjectPlans} = this.props;
+    uploadStrategyProjectPlans();
+  }
 
 //  -----------------------------------------------------------   行动计划  end    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -749,8 +773,9 @@ class FormModal extends PureComponent {
               <span className={style.titleBlue}> </span>
               <div className={style.titleText}>行动计划</div>
             </div>
-            <div style={{ textAlign: 'left', marginBottom: '10px' }}>
-              <Button type="primary" size="large" style={{ marginRight: '20px', background: '#409EFF', border: '1px solid #409EFF' }}>
+            <div style={{ textAlign: 'left', marginBottom: '10px',width: '300px' }}>
+              <Button onClick={this.downPlansTemplate}
+               type="primary" size="large" style={{ marginRight: '20px', background: '#409EFF', border: '1px solid #409EFF' }}>
                 模板下载
               </Button>
               <Button
@@ -761,9 +786,10 @@ class FormModal extends PureComponent {
               >
                 新建
               </Button>
-              <Button type="primary" size="large" style={{ marginRight: '20px', background: '#67C23A', border: '1px solid #67C23A' }}>
-                导入
-              </Button>
+              <DataImport
+                // tableProps={{ columns, showSearch: false }}
+                importFunc={this.importPlans}          
+              />
             </div>
 
             <Row align="middle" gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}justify="space-around"
@@ -781,12 +807,12 @@ class FormModal extends PureComponent {
 
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-          <Button type="primary" size="large" style={{ margin: '20px' }}>
+          <Button onClick={this.downLoad} type="primary" size="large" style={{ margin: '20px' }}>
             下载
           </Button>
 
           <Button
-            type="primary"
+            type="primary" onClick={this.print}
             size="large"
             style={{ margin: '20px', background: '#E6A23C', border: '1px solid #E6A23C' }}
           >
@@ -795,7 +821,7 @@ class FormModal extends PureComponent {
           <Button onClick={this.handSave} type="primary" size="large" style={{ margin: '20px', background: '#909399', border: '1px solid #909399' }}>
             保存
           </Button>
-          <Button type="primary" size="large" style={{ margin: '20px' }}>
+          <Button onClick={this.submit} type="primary" size="large" style={{ margin: '20px' }}>
             提交
           </Button>
 

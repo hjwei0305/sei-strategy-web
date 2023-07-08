@@ -444,7 +444,7 @@ class StrategyBills extends Component {
             tableProps={{ columns, showSearch: false }}
             validateFunc={this.validateItem}
             validatedAll={true}
-            importFunc={this.uploadStrategyAnalyzeBill}          
+            importFunc={this.uploadStrategyAnalyzeBill}
           />
         </Space>
       ),

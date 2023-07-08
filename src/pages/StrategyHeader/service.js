@@ -8,7 +8,7 @@ import { utils } from 'suid';
 import { constants } from '@/utils';
 
 const { request } = utils;
-const { PROJECT_PATH,SERVER_PATH } = constants;
+const { PROJECT_PATH,SERVER_PATH,LOCAL_PATH } = constants;
 const contextPath = '/strategyHeaderApi';
 
 
@@ -43,5 +43,23 @@ export async function projectSave(data) {
   const url = `${PROJECT_PATH}/strategyProject/save`;
   return request.post(url, data);
 
+}
+
+/** 下载模板 */
+export async function downloadTemplate() {
+  const url = `${LOCAL_PATH}/templates/行动计划导入模版.xlsx`;
+  return request({
+    url,
+    method: 'get',
+    responseType: 'blob', 
+  });
+}
+
 //-------------------项目end---------------------
+
+
+/** 导入 */
+export async function uploadStrategyProjectPlans(params) {
+  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyProjectPlans`;
+  return request.post(url, params);
 }

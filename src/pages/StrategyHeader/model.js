@@ -6,7 +6,8 @@
  */
 import { message } from 'antd';
 import { utils } from 'suid';
-import { del, save,findByPage,findByCode,projectSave } from './service';
+import { del, save, findByPage, findByCode, projectSave, downloadTemplate, uploadStrategyProjectPlans } from './service';
+import { downFile } from '@/utils';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -76,8 +77,27 @@ export default modelExtend(model, {
       }
 
       return result;
-    }
+    },
+    *downPlansTemplate({ payload }, { call }) {
+      debugger
+      const ds = yield call(downloadTemplate);
+      if (ds.success) {
+        downFile(ds.data,'行动计划导入模版.xlsx');
+      }
+    },
+    *uploadStrategyProjectPlans({ payload }, { call }) {
+      const result = yield call(uploadStrategyProjectPlans, payload);
+      const { success, message: msg } = result || {};
 
+      message.destroy();
+      if (success) {
+        message.success(msg);
+      } else {
+        message.error(msg);
+      }
+
+      return result;
+    },
     // --------------------------      project  end     --------------------------
   },
 });
