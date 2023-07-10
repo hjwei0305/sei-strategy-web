@@ -7,7 +7,7 @@
 import { message } from 'antd';
 import { utils } from 'suid';
 import { downFile } from '@/utils';
-import { del, save, findByPage, downloadTemplate,uploadStrategyProjectLevel } from './service';
+import { del, save, downloadTemplate,uploadStrategyProjectLevel } from './service';
 
 const { dvaModel } = utils;
 const { modelExtend, model } = dvaModel;
@@ -44,15 +44,6 @@ export default modelExtend(model, {
         message.error(msg);
       }
 
-      return result;
-    },
-    *findByPage({ payload }, { call }) {
-      const result = yield call(findByPage, payload);
-      const { success, message: msg } = result || {};
-      message.destroy();
-      if (!success) {
-        message.error(msg);
-      }
       return result;
     },
     *downloadTemplate({ payload }, { call }) {

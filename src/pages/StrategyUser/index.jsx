@@ -13,7 +13,6 @@ const { PROJECT_PATH } = constants;
 class StrategyUser extends Component {
   state = {
     delId: null,
-    dataList: [],
     moduleFilter: null,
     styleFilter: null,
     userNameFilter: null,

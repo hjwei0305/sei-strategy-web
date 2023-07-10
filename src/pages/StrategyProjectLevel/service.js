@@ -25,11 +25,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
-
 export async function downloadTemplate(params) {
   const url = `${LOCAL_PATH}/templates/项目级别导入模版.xlsx`;
   return request({

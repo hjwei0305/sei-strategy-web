@@ -19,13 +19,8 @@ class StrategyProjectLevel extends Component {
     creatorNameFilter: null,
     //提交日期filter
     createdDateFilter: null,
-    dataList: [],
   };
 
-  constructor(prop) {
-    super(prop);
-    this.findByPage();
-  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -78,20 +73,10 @@ class StrategyProjectLevel extends Component {
    }
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyProjectLevel/findByPage',
-      payload: {
-        filters
-      },
-    }).then(res => {
-      const { rows } = res.data;
-      this.setState({
-        dataList: rows,
-      });
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   handleEvent = (type, row) => {
@@ -123,7 +108,7 @@ class StrategyProjectLevel extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -206,7 +191,7 @@ class StrategyProjectLevel extends Component {
       debugger;
       if (res.success) {
         message.success('导入成功！');
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -224,7 +209,7 @@ class StrategyProjectLevel extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -363,7 +348,7 @@ class StrategyProjectLevel extends Component {
             format="YYYY-MM-DD"
             allowClear
           />
-          <Button type='primary' onClick={this.findByPage}>查询</Button>
+          <Button type='primary' onClick={this.refresh}>查询</Button>
           <Button
             key="add"
             type="primary"
@@ -385,16 +370,20 @@ class StrategyProjectLevel extends Component {
         </Space>
       ),
     };
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
     return {
       columns,
       bordered: false,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyProjectLevel/findByPage`,
+      },
     };
   };
 
