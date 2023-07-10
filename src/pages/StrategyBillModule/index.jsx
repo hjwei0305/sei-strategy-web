@@ -14,15 +14,9 @@ const { PROJECT_PATH } = constants;
 class StrategyBillModule extends Component {
   state = {
     delId: null,
-    dataList: [],
     moduleFilter: null,
     codeFilter: null,
   };
-
-  constructor(prop) {
-    super(prop);
-    this.findByPage();
-  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -54,23 +48,10 @@ class StrategyBillModule extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyBillModule/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      if (res.success) {
-        const { rows } = res.data;
-        this.setState({
-          dataList: rows,
-        });
-
-      }
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   handleEvent = (type, row) => {
@@ -102,7 +83,7 @@ class StrategyBillModule extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -126,7 +107,7 @@ class StrategyBillModule extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -186,7 +167,7 @@ class StrategyBillModule extends Component {
       payload:  data,
     }).then(res => {
       if (res.success) {
-        this.findByPage();
+        this.refresh();
       }
     }
     );
@@ -303,7 +284,7 @@ class StrategyBillModule extends Component {
           <Button
             type="primary"
             onClick={() => {
-              this.findByPage();
+              this.refresh();
             }}
           >
             查询
@@ -330,17 +311,20 @@ class StrategyBillModule extends Component {
       ),
     };
 
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
-      remotePaging: false,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyBillModule/findByPage`,
+      },
     };
   };
 

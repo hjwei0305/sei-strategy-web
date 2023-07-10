@@ -24,11 +24,7 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
+
 
 /** 下载模版 */
 export async function downloadTemplate() {
