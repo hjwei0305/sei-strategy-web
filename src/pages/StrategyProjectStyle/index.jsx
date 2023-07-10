@@ -16,13 +16,7 @@ class StrategyProjectStyle extends Component {
     delId: null,
     projectStyleFilter: null,
     codeFilter: null,
-    dataList: [],
   };
-
-  constructor(prop){
-    super(prop)
-    this.findByPage()
-  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -53,20 +47,10 @@ class StrategyProjectStyle extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyProjectStyle/findByPage',
-      payload: {
-        filters
-      },
-    }).then(res => {
-      const { rows } = res.data
-      this.setState({
-        dataList: rows,
-        });
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   handleEvent = (type, row) => {
@@ -98,7 +82,7 @@ class StrategyProjectStyle extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -147,7 +131,7 @@ class StrategyProjectStyle extends Component {
     }).then(res => {
       if (res.success) {
         
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -267,7 +251,7 @@ class StrategyProjectStyle extends Component {
           })}
             allowClear
           />
-          <Button type='primary' onClick={this.findByPage}>查询</Button>
+          <Button type='primary' onClick={this.refresh}>查询</Button>
           <Button
             key="add"
             type="primary"
@@ -290,18 +274,21 @@ class StrategyProjectStyle extends Component {
       ),
     };
 
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
 
     return {
       columns,
       bordered: true,
       pagination: true,
-      remotePaging: false,
       showSearch: false,
       toolBar: toolBarProps,
-      dataSource: this.state.dataList,
+      remotePaging: true,
       cascadeParams: {
-        filter,
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyProjectStyle/findByPage`,
       },
     };
   };
@@ -318,7 +305,7 @@ class StrategyProjectStyle extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -331,7 +318,7 @@ class StrategyProjectStyle extends Component {
         editData: null,
       },
     });
-    this.findByPage();
+    this.refresh();
   };
 
   renderDelBtn = row => {

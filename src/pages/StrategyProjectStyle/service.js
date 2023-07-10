@@ -25,12 +25,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params || {});
-}
-
 /** 导入模版下载 */
 export async function downloadTemplate() {
   const url = `${LOCAL_PATH}/templates/项目类型导入模版.xlsx`;
