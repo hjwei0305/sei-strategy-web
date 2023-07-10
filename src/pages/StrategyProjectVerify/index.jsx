@@ -14,15 +14,9 @@ const { PROJECT_PATH } = constants;
 class StrategyProjectVerify extends Component {
   state = {
     delId: null,
-    dataList: [],
     verifyResultFilter: null,
     verifyStyleFilter: null,
   };
-
-  constructor(prop) {
-    super(prop);
-    this.findByPage();
-  }
 
   dispatchAction = ({ type, payload }) => {
     const { dispatch } = this.props;
@@ -63,7 +57,7 @@ class StrategyProjectVerify extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -87,7 +81,7 @@ class StrategyProjectVerify extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -116,7 +110,7 @@ class StrategyProjectVerify extends Component {
     if (this.state.verifyResultFilter) {
       filters.push({
         fieldName: 'verifyResult',
-        operator: 'LK',
+        operator: 'EQ',
         fieldType: 'String',
         value:this.state.verifyResultFilter,
       });
@@ -132,22 +126,10 @@ class StrategyProjectVerify extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getFilterProps();
-    dispatch({
-      type: 'strategyProjectVerify/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      if (res.success) {
-        const { rows } = res.data;
-        this.setState({
-          dataList: rows,
-        });
-      }
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   handlerExport = () => {
@@ -225,7 +207,7 @@ class StrategyProjectVerify extends Component {
       payload:  data,
     }).then(res => {
       if (res.success) {
-        this.findByPage();
+        this.refresh();
       }
     }
     );
@@ -319,7 +301,7 @@ class StrategyProjectVerify extends Component {
            <Button
             type="primary"
             onClick={() => {
-              this.findByPage();
+              this.refresh();
             }}
           >
             查询
@@ -349,21 +331,25 @@ class StrategyProjectVerify extends Component {
             tableProps={{ columns, showSearch: false }}
             validateFunc={this.validateItem}
             validatedAll={true}
-            importFunc={this.uploadStrategyProjectVerify}          
+            importFunc={this.uploadStrategyProjectVerify}
           />
         </Space>
       ),
     };
-    const filter = this.getFilterProps();
+    const filters = this.getFilterProps();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyProjectVerify/findByPage`,
+      },
     };
   };
 

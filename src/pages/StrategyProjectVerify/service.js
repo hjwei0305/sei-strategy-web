@@ -24,12 +24,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 分页查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
-
 /** 下载模板 */
 export async function downloadTemplate() {
   const url = `${LOCAL_PATH}/templates/验证问题导入模版.xlsx`;
