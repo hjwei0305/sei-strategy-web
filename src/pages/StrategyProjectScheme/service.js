@@ -24,13 +24,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 分页查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
-
-
 /** 查询员工所有信息 */
 export async function findByCode(param) {
   const url = `${SERVER_PATH}/sei-basic/employee/findByCode?code=${param.code}`;

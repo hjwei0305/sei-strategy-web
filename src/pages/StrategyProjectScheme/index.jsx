@@ -14,7 +14,6 @@ const { PROJECT_PATH } = constants;
 class StrategyProjectScheme extends Component {
   state = {
     delId: null,
-    datalist: [],
     styleFilter: null,
     orgName: null,
     dateList: [
@@ -52,7 +51,6 @@ class StrategyProjectScheme extends Component {
 
   constructor(prop) {
     super(prop);
-    this.findByPage();
     this.findByCode();
   }
 
@@ -95,7 +93,7 @@ class StrategyProjectScheme extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -142,7 +140,7 @@ class StrategyProjectScheme extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -172,7 +170,7 @@ class StrategyProjectScheme extends Component {
     if (this.state.styleFilter) {
       filters.push({
         fieldName: 'style',
-        operator: 'LK',
+        operator: 'EQ',
         fieldType: 'String',
         value: this.state.styleFilter,
       });
@@ -180,20 +178,10 @@ class StrategyProjectScheme extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyProjectScheme/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      const rows = res.data.rows;
-      this.setState({
-        datalist: rows,
-      });
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   findByCode = () => {
@@ -263,7 +251,7 @@ class StrategyProjectScheme extends Component {
     }).then(res => {
       if (res.success) {
         message.success('导入成功');
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -375,7 +363,7 @@ class StrategyProjectScheme extends Component {
             }}
             allowClear
           />
-          <Button type='primary' onClick={this.findByPage}>查询</Button>
+          <Button type='primary' onClick={this.refresh}>查询</Button>
           <Button
             key="add"
             type="primary"
@@ -406,16 +394,20 @@ class StrategyProjectScheme extends Component {
         </Space>
       ),
     };
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.datalist,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyProjectScheme/findByPage`,
+      },
     };
   };
 
