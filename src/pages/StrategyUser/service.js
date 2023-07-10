@@ -26,12 +26,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 分页查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
-
 /** 获取项目下拉框 */
 export async function getProOpt() {
   const url = `${SERVER_PATH}/dms/dataDict/getCanUseDataDictValues?dictCode=StrategyUserType`;

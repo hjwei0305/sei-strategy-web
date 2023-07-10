@@ -23,7 +23,6 @@ class StrategyUser extends Component {
 
   constructor(prop) {
     super(prop);
-    this.findByPage();
     this.componentdidmount();
     this.initModuleList();
   }
@@ -74,7 +73,7 @@ class StrategyUser extends Component {
     if (this.state.styleFilter) {
       filters.push({
         fieldName: 'style',
-        operator: 'LK',
+        operator: 'EQ',
         fieldType: 'String',
         value: this.state.styleFilter,
       });
@@ -90,26 +89,11 @@ class StrategyUser extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyUser/findByPage',
-      payload: {
-        sortOrders: [
-          {
-            property: 'moduleCode',
-            direction: 'ASC',
-          }
-        ],
-        filters,
-      },
-    }).then(res => {
-      const { rows } = res.data;
-      this.setState({
-        dataList: rows,
-      });
-    });
+  refresh = () => {
+    this.getTableFilters();
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   validateItem = data => {
@@ -141,7 +125,7 @@ class StrategyUser extends Component {
     }).then(res => {
       if (res.success) {
         message.success('导入成功！');
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -176,7 +160,7 @@ class StrategyUser extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -234,7 +218,7 @@ class StrategyUser extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -330,25 +314,25 @@ class StrategyUser extends Component {
       {
         title: '部门',
         dataIndex: 'department',
-        width: 150,
+        width: 600,
         required: true,
       },
       {
         title: '人事状态',
         dataIndex: 'userState',
-        width: 150,
+        width: 100,
         required: true,
       },
       {
         title: '创建人',
         dataIndex: 'creatorName',
-        width: 150,
+        width: 100,
         required: true,
       },
       {
         title: '创建时间',
         dataIndex: 'createdDate',
-        width: 150,
+        width: 200,
         required: true,
       },
     ];
@@ -394,7 +378,7 @@ class StrategyUser extends Component {
             }}
             allowClear
           />
-          <Button type="primary" onClick={this.findByPage}>  查询  </Button>
+          <Button type="primary" onClick={this.refresh}>  查询  </Button>
           <Button
             key="add"
             type="primary"
@@ -425,16 +409,20 @@ class StrategyUser extends Component {
         </Space>
       ),
     };
-    const filter = this.getTableFilters(); // 过滤条件
+    const filters = this.getTableFilters(); // 过滤条件
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyUser/findByPage`,
+      },
     };
   };
 
