@@ -25,12 +25,6 @@ export async function del(params) {
   return request.delete(url);
 }
 
-/** 分页查询 */
-export async function findByPage(params) {
-  const url = `${PROJECT_PATH}${contextPath}/findByPage`;
-  return request.post(url, params);
-}
-
 
 /** 查询员工所有信息 */
 export async function findByCode(param) {
@@ -55,11 +49,18 @@ export async function downloadTemplate() {
   });
 }
 
-//-------------------项目end---------------------
-
-
 /** 导入 */
 export async function uploadStrategyProjectPlans(params) {
   const url = `${PROJECT_PATH}${contextPath}/uploadStrategyProjectPlans`;
   return request.post(url, params);
 }
+
+export async function submitProject(params) {
+  const url = `${PROJECT_PATH}/strategyProject/submitProject`;
+  return request.post(url, params);
+}
+
+
+//-------------------项目end---------------------
+
+

@@ -274,30 +274,39 @@ class FormModal extends PureComponent {
     ],
   }
 
-  // 保存当前页面
-  handSave = () => {
-    const { form, onSave, editData } = this.props;
+  // 封装params
+  getParams = () => {
+    const { form, editData } = this.props;
+    const params = {};
     form.validateFields((err, formData) => {
       if (err) {
         return;
       }
-      const params = {};
       formData.contacts = editData.strategyProjectDto.contacts;
-      debugger
       formData.id = editData.strategyProjectDto.id;
       formData.stage = editData.strategyProjectDto.stage;
       formData.relates = this.state.reltesFeedLines;
       formData.plans = this.state.plans;
       Object.assign(params, formData);
-      console.log(formData);
-      if (onSave) {
-        onSave(params);
-      }
     });
+    return params;
   };
 
+  // 保存当前页面
+  handSave = () => {
+    const { onSave } = this.props;
+    const params = this.getParams();
+    if (onSave) {
+      onSave(params);
+    }
+  };
+  // 提交当前页面
   submit = () => {
-    console.log("676767");
+    const { submitProject } = this.props;
+    const params = this.getParams();
+    if (submitProject) {
+      submitProject(params);
+    }
   }
 
   downLoad = () => {
@@ -807,9 +816,9 @@ class FormModal extends PureComponent {
 
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-          <Button onClick={this.downLoad} type="primary" size="large" style={{ margin: '20px' }}>
+          {/* <Button onClick={this.downLoad} type="primary" size="large" style={{ margin: '20px' }}>
             下载
-          </Button>
+          </Button> */}
 
           <Button
             type="primary" onClick={this.print}

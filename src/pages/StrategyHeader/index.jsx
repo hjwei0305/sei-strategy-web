@@ -18,7 +18,6 @@ const { PROJECT_PATH, SERVER_PATH } = constants;
 class StrategyHeader extends Component {
   state = {
     delId: null,
-    datalist: [],
     moduleFilter: null,
     userNameFilter: null,
     stateFilter: null,
@@ -44,7 +43,6 @@ class StrategyHeader extends Component {
 
   constructor(prop) {
     super(prop);
-    this.findByPage();
     this.initStateList();
     this.findByCode();
     this.initProjectStyle();
@@ -208,22 +206,10 @@ class StrategyHeader extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyHeader/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      if (res.success) {
-        const { rows } = res.data;
-        this.setState({
-          dataList: rows,
-        });
-      }
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
 //---------------------------------------------------------------     页面基础功能 end       ------------------------------------------------------------------------
@@ -243,7 +229,7 @@ class StrategyHeader extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -279,7 +265,20 @@ handleProSubmissionSave = data => {
   }).then(res => {
     if (res.success) {
       this.handleProSubmissionClose();
-      this.findByPage();
+      this.refresh();
+    }
+  });
+};
+
+submitProject = data => {
+  this.dispatchAction({
+    type: 'strategyHeader/submitProject',
+    payload: data,
+  }).then(res => {
+    if (res.success) {
+      this.handleProSubmissionClose();
+      this.refresh();
+
     }
   });
 };
@@ -313,7 +312,7 @@ uploadStrategyProjectPlans = (file) => {
     }
   }).then(res => {
     if (res.success) {
-      this.findByPage();
+      this.refresh();
     }
   });
 }
@@ -525,7 +524,7 @@ uploadStrategyProjectPlans = (file) => {
             }}
             allowClear
           />
-          <Button type='primary' onClick={this.findByPage}>查找</Button>
+          <Button type='primary' onClick={this.refresh}>查找</Button>
           <Button
             key="export"
             type="primary"
@@ -539,16 +538,20 @@ uploadStrategyProjectPlans = (file) => {
         </Space>
       ),
     };
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyHeaderApi/findByPage`,
+      },
     };
   };
 
@@ -584,6 +587,7 @@ uploadStrategyProjectPlans = (file) => {
       monthList: this.state.monthList,
       downPlansTemplate: this.downPlansTemplate,
       uploadStrategyProjectPlans: this.uploadStrategyProjectPlans,
+      submitProject: this.submitProject,
     };
   };
   // 项目确认表

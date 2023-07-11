@@ -89,7 +89,6 @@ class StrategyUser extends Component {
   };
 
   refresh = () => {
-    this.getTableFilters();
     if (this.tableRef) {
       this.tableRef.remoteDataRefresh();
     }
