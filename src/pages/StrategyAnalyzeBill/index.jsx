@@ -13,7 +13,6 @@ const { PROJECT_PATH } = constants;
 class StrategyBills extends Component {
   state = {
     delId: null,
-    datalist: [],
     moduleFilter: null,
     userNameFilter: null,
     stateFilter: null,
@@ -22,7 +21,6 @@ class StrategyBills extends Component {
 
   constructor(prop) {
     super(prop);
-    this.findByPage();
     this.initModuleList();
   }
 
@@ -73,7 +71,7 @@ class StrategyBills extends Component {
     }).then(res => {
       if (res.success) {
         message.success('导入成功！');
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -117,7 +115,7 @@ class StrategyBills extends Component {
                   {
                     delId: null,
                   },
-                  () => this.findByPage(),
+                  () => this.refresh(),
                 );
               }
             });
@@ -171,7 +169,7 @@ class StrategyBills extends Component {
             modalVisible: false,
           },
         });
-        this.findByPage();
+        this.refresh();
       }
     });
   };
@@ -233,22 +231,10 @@ class StrategyBills extends Component {
     return filters;
   };
 
-  findByPage = () => {
-    const { dispatch } = this.props;
-    const filters = this.getTableFilters();
-    dispatch({
-      type: 'strategyAnalyzeBill/findByPage',
-      payload: {
-        filters,
-      },
-    }).then(res => {
-      if (res.success) {
-        const { rows } = res.data;
-        this.setState({
-          dataList: rows,
-        });
-      }
-    });
+  refresh = () => {
+    if (this.tableRef) {
+      this.tableRef.remoteDataRefresh();
+    }
   };
 
   getExtableProps = () => {
@@ -310,43 +296,49 @@ class StrategyBills extends Component {
       },
       {
         title: '工号',
-        dataIndex: 'userCode',
+        dataIndex: 'officerCodes',
         width: 120,
         required: true,
       },
       {
         title: '项目负责人',
-        dataIndex: 'userName',
+        dataIndex: 'officerNames',
         width: 120,
         required: true,
       },
       {
         title: '职位',
-        dataIndex: 'userPosition',
+        dataIndex: 'officerPositions',
         width: 120,
         required: true,
       },
       {
         title: '工号',
-        dataIndex: 'userCode1',
+        dataIndex: 'contactUserCode',
         width: 120,
         required: true,
+        render: (_, record) => {
+          return (record.contacts==null || record.contacts[0] == null) ? '' : record.contacts[0].userCode;
+        }
       },
       {
         title: '模块对接人',
-        dataIndex: 'userName1',
+        dataIndex: 'contactUserName',
         width: 120,
         required: true,
+        render: (_, record) => {
+          return (record.contacts==null || record.contacts[0] == null) ? '' : record.contacts[0].userName;
+        }
       },
       {
         title: '工号',
-        dataIndex: 'userCode2',
+        dataIndex: 'managemetCodes',
         width: 120,
         required: true,
       },
       {
         title: '经营策略管理组成员',
-        dataIndex: 'userName2',
+        dataIndex: 'managemetNames',
         width: 180,
         required: true,
       },
@@ -418,7 +410,7 @@ class StrategyBills extends Component {
             }}
             allowClear
           />
-          <Button type='primary' onClick={this.findByPage}>查找</Button>
+          <Button type='primary' onClick={this.refresh}>查找</Button>
           <Button
             key="add"
             type="primary"
@@ -449,16 +441,20 @@ class StrategyBills extends Component {
         </Space>
       ),
     };
-    const filter = this.getTableFilters();
+    const filters = this.getTableFilters();
     return {
       columns,
       bordered: true,
       toolBar: toolBarProps,
+      remotePaging: true,
       showSearch: false,
-      dataSource: this.state.dataList,
       cascadeParams: {
-        filter,
-      }
+        filters,
+      },
+      store:{
+        type: 'POST',
+        url:`${PROJECT_PATH}/strategyAnalyzeBill/findByPage`,
+      },
     };
   };
 
