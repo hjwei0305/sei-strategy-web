@@ -51,7 +51,7 @@ export async function downloadTemplate() {
 
 /** 导入 */
 export async function uploadStrategyProjectPlans(params) {
-  const url = `${PROJECT_PATH}${contextPath}/uploadStrategyProjectPlans`;
+  const url = `${PROJECT_PATH}/strategyProjectPlans/uploadStrategyProjectPlans`;
   return request.post(url, params);
 }
 

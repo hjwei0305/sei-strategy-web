@@ -79,14 +79,12 @@ export default modelExtend(model, {
     *uploadStrategyProjectPlans({ payload }, { call }) {
       const result = yield call(uploadStrategyProjectPlans, payload);
       const { success, message: msg } = result || {};
-
       message.destroy();
       if (success) {
         message.success(msg);
       } else {
         message.error(msg);
       }
-
       return result;
     },
 

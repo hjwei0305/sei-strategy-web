@@ -18,6 +18,37 @@ const formItemLayout = {
   },
 };
 
+const importPlans = [
+  {
+    title: '月份',
+    dataIndex: 'month',
+  },
+  {
+    title: '里程碑事件',
+    dataIndex: 'milestone',
+  },
+  {
+    title: '责任人Code',
+    dataIndex: 'userCode',
+  },
+  {
+    title: '责任人',
+    dataIndex: 'userName',
+  },
+  {
+    title: '预计完成时间',
+    dataIndex: 'estimateDate',
+  },
+  {
+    title: '交付物',
+    dataIndex: 'deliverable',
+  },
+  {
+    title: '交付物是否涉及财务数据',
+    dataIndex: 'isFinancial',
+  },
+];
+
 @Form.create()
 
 class FormModal extends PureComponent {
@@ -491,11 +522,34 @@ class FormModal extends PureComponent {
     downPlansTemplate();
   }
 
-  importPlans = () => {
-    const {uploadStrategyProjectPlans} = this.props;
-    uploadStrategyProjectPlans();
+  importPlans = data => {
+    const {uploadStrategyProjectPlans,editData} = this.props;
+    data.forEach(item => {
+      item.projectId = editData.strategyProjectDto.id;
+    });
+    uploadStrategyProjectPlans(data);
   }
 
+  validateItem = data => {
+    return data.map(item => {
+      if (!item.month) {
+        return {
+          ...item,
+          validate: false,
+          status: '验证失败',
+          statusCode: 'error',
+          message: '月份不能为空',
+        }
+      }
+      return {
+        ...item,
+        validate: true,
+        status: '验证通过',
+        statusCode: 'success',
+        message: '验证通过',
+      };
+    });
+  };
 //  -----------------------------------------------------------   行动计划  end    ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   render() {
@@ -795,7 +849,9 @@ class FormModal extends PureComponent {
                 新建
               </Button>
               <DataImport
-                // tableProps={{ columns, showSearch: false }}
+                tableProps={{ importPlans, showSearch: false }}
+                validateFunc={this.validateItem}
+                validatedAll={true}
                 importFunc={this.importPlans}
               />
             </div>
@@ -819,7 +875,7 @@ class FormModal extends PureComponent {
 
           <ReactToPrint
               trigger={() => (
-                <Button onClick={console.log(this.contentRef)} type="link">
+                <Button type="primary">
                   打印
                 </Button>
               )}

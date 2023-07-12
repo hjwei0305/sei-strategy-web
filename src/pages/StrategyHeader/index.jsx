@@ -307,11 +307,10 @@ uploadStrategyProjectPlans = (file) => {
   debugger;
   this.dispatchAction({
     type: 'strategyHeader/uploadStrategyProjectPlans',
-    payload: {
-      file
-    }
+    payload: file,
   }).then(res => {
     if (res.success) {
+      this.handleProSubmissionClose();
       this.refresh();
     }
   });
