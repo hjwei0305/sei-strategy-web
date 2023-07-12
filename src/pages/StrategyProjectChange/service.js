@@ -9,7 +9,7 @@ import { constants } from '@/utils';
 
 const { request } = utils;
 const { PROJECT_PATH } = constants;
-const contextPath = 'strategyProjectChange';
+const contextPath = '/strategyProjectChange';
 
 /** 分页查询 */
 export async function findByPage(params) {

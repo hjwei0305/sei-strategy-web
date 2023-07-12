@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactToPrint from 'react-to-print';
 import { Input, Col, Row, Select, Button, Form, DatePicker } from 'antd';
 import { ExtModal, ComboList, ExtTable, DataImport  } from 'suid';
 import moment from 'moment';
@@ -313,9 +314,6 @@ class FormModal extends PureComponent {
     console.log("38383838")
   }
 
-  print = () => {
-    console.log("378378")
-  }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++   相关方  start  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // 处理单元格保存
@@ -625,6 +623,7 @@ class FormModal extends PureComponent {
         className={style.container}
       >
 
+        <div id="xy-print" ref={el=> this.contentRef = el}>
         <Form {...formItemLayout} layout="horizontal" className={style.XXX}>
           <div>
             <div className={style.titleBox}>
@@ -797,7 +796,7 @@ class FormModal extends PureComponent {
               </Button>
               <DataImport
                 // tableProps={{ columns, showSearch: false }}
-                importFunc={this.importPlans}          
+                importFunc={this.importPlans}
               />
             </div>
 
@@ -813,20 +812,21 @@ class FormModal extends PureComponent {
 
           </div>
         </Form>
+        </div>
 
 
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-          {/* <Button onClick={this.downLoad} type="primary" size="large" style={{ margin: '20px' }}>
-            下载
-          </Button> */}
 
-          <Button
-            type="primary" onClick={this.print}
-            size="large"
-            style={{ margin: '20px', background: '#E6A23C', border: '1px solid #E6A23C' }}
-          >
-            打印
-          </Button>
+          <ReactToPrint
+              trigger={() => (
+                <Button onClick={console.log(this.contentRef)} type="link">
+                  打印
+                </Button>
+              )}
+              documentTitle={`行动计划-${editData.strategyProjectDto.name}`}
+              removeAfterPrint
+              content={() => this.contentRef}
+            />
           <Button onClick={this.handSave} type="primary" size="large" style={{ margin: '20px', background: '#909399', border: '1px solid #909399' }}>
             保存
           </Button>
