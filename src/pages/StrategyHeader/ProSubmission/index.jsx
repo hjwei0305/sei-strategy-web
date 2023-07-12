@@ -5,6 +5,7 @@ import { ExtModal, ComboList, ExtTable, DataImport  } from 'suid';
 import moment from 'moment';
 import style from './index.less';
 import { constants } from '@/utils';
+import StartFlow from 'suid/es/work-flow/StartFlow';
 const { SERVER_PATH } = constants;
 const { ComboMultiList } = ComboList;
 
@@ -663,6 +664,14 @@ class FormModal extends PureComponent {
 
     this.state.plans = temp2;
 
+    const startFlowProps = {
+      businessKey: editData && editData.strategyProjectDto.id,
+      businessModelCode: 'com.domlin.strategy.entity.StrategyProject',
+      // startComplete: () => this.BackBill,
+      needStartConfirm: false,
+      // beforeStart: () => this.beforeStart(),
+    };
+
     return (
       <ExtModal
         destroyOnClose
@@ -889,7 +898,13 @@ class FormModal extends PureComponent {
           <Button onClick={this.submit} type="primary" size="large" style={{ margin: '20px' }}>
             提交
           </Button>
-
+          <StartFlow {...startFlowProps}>
+              {sLoading => (
+                <Button type="primary" disabled={sLoading} loading={sLoading} style={{marginLeft:"5px"}} >
+                  提交
+                </Button>
+              )}
+          </StartFlow>
         </div>
       </ExtModal>
     );
