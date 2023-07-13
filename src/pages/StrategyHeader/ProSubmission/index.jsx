@@ -895,9 +895,6 @@ class FormModal extends PureComponent {
           <Button onClick={this.handSave} type="primary" size="large" style={{ margin: '20px', background: '#909399', border: '1px solid #909399' }}>
             保存
           </Button>
-          <Button onClick={this.submit} type="primary" size="large" style={{ margin: '20px' }}>
-            提交
-          </Button>
           <StartFlow {...startFlowProps}>
               {sLoading => (
                 <Button type="primary" disabled={sLoading} loading={sLoading} style={{marginLeft:"5px"}} >
